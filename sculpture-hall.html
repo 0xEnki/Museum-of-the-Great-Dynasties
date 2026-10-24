@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قاعة المنحوتات التاريخية - المتحف الرقمي</title>
+    <style>
+        :root {
+            --bg-color: #0b0b0b;
+            --card-bg: #141414;
+            --accent-gold: #f39c12;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --border-color: #2a2a2a;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            color: var(--accent-gold);
+            text-decoration: none;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent-gold);
+            background: rgba(243, 156, 18, 0.05);
+            transform: translateX(-4px);
+        }
+
+        .hall-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .hall-header h1 {
+            color: var(--accent-gold);
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .hall-header .subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .art-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            height: 350px;
+        }
+
+        .art-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-gold);
+            box-shadow: 0 15px 40px rgba(243, 156, 18, 0.15);
+        }
+
+        .art-image-box {
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+        }
+
+        .art-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .art-card:hover .art-image-box img {
+            transform: scale(1.08);
+        }
+
+        .art-info {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+
+        .art-info h3 {
+            margin: 0 0 6px 0;
+            font-size: 1.15rem;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .art-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* نافذة العرض المنبثقة (Lightbox Modal) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: #161616;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 900px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-image-container {
+            width: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            max-height: 500px;
+        }
+
+        .modal-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .modal-details {
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: right;
+            direction: rtl;
+        }
+
+        .modal-details h2 {
+            color: var(--accent-gold);
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .modal-meta {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-meta p {
+            margin: 6px 0;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .modal-meta span {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .modal-desc {
+            color: #d0d0d0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .close-btn:hover {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                grid-template-columns: 1fr;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .modal-image-container {
+                max-height: 300px;
+            }
+
+            .modal-details {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">
+            <span>←</span> العودة للرئيسية
+        </a>
+
+        <div class="hall-header">
+            <h1>قاعة المنحوتات التاريخية</h1>
+            <p class="subtitle">منحوتات وقطع أثرية تجسد الإبداع العريق في الحجر والمعدن (انقر للتفاصيل)</p>
+        </div>
+
+        <div class="gallery-grid">
+
+            <!-- تحفة 1 -->
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/2.jpeg"
+                data-title="تمثال الحارس السومري" data-artist="نحات عراقي عريق" data-year="العصر السومري القديم"
+                data-desc="منحوتة أثرية نادرة توثق دقة الفن النحتي في حضارة بلاد ما بين النهرين وتجسد ملامح الحراسة والقوة.">
+                <div class="art-image-box">
+                    <img src="./sculpture/2.jpeg" alt="منحوتة 1">
+                </div>
+                <div class="art-info">
+                    <h3>تمثال الحارس السومري</h3>
+                    <p>العصر السومري القديم</p>
+                </div>
+            </div>
+
+            <!-- تحفة 2 -->
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/images(1).jpeg"
+                data-title="النقش البابلي الخالد" data-artist="مدارس النحت البابلية"
+                data-year="عصر الإمبراطورية البابلية"
+                data-desc="تفاصيل دقيقة ومنحوتات بارزة على الصخور توثق الرمزية التاريخية والملحمية لحضارة بابل.">
+                <div class="art-image-box">
+                    <img src="./sculpture/images (1).jpeg" alt="منحوتة 2">
+                </div>
+                <div class="art-info">
+                    <h3>النقش البابلي الخالد</h3>
+                    <p>عصر الإمبراطورية البابلية</p>
+                </div>
+            </div>
+
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/images.jpeg"
+                data-title="النحت في روما القديمة" data-artist="مدارس النحت الرومانية"
+                data-year="العصر الجمهوري الروماني"
+                data-desc="النحت في روما القديمة هو فن النحت الروماني الذي يشير في بداياته إلى الأصول الأولى البسيطة للمجتمع الروماني، إن دراسة النحت الروماني القديم له علاقة أصلية بالنحت اليوناني. ومن الأمثلة المعروفة الكثيرة في تشابه المنحوتات في الحضارتين حتى في المنحوتات اليونانية الأكثر شهرة، مثل أبولو[ ؟ ]، بلفيدير[ ؟ ] وبربريني، وقد اتخذ هذا التقليد من قبل مؤرخي الفن كما يدل على ضيق الخيال الفني الروماني، ولكن في القرن 20">
+                <div class="art-image-box">
+                    <img src="./sculpture/images.jpeg" alt="منحوتة 3">
+                </div>
+                <div class="art-info">
+                    <h3>النحت في روما القديمة</h3>
+                    <p>العصر الجمهوري الروماني</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/photo_5373074057068224798_x.jpg"
+                data-title="النقش السومري" data-artist="" data-year="العصر السومري القديم"
+                data-desc="تُمثل الرقم الطينية المسمارية واحدة من أهم الاكتشافات الأثرية التي وثقت بداية الانتقال من عصور ما قبل التاريخ إلى عصر التاريخ والكتابة في حضارة وادي الرافدين. تعكس هذه الألواح دقة فائقة في التدوين الإداري والاقتصادي والقانوني، حيث استخدم الكُتّاب العراقيون القدماء القلم المدبب لنقش العلامات والرموز المسمارية على الطين الرطب قبل تجفيفه، مما ضمن حفظ المعارف البشرية والقوانين والمعاملات التجارية لآلاف السنين، وجعلها مصدراً أساسياً لدراسة تطور الفكر الإنساني.">
+                <div class="art-image-box">
+                    <img src="./sculpture/photo_5373074057068224798_x.jpg" alt="منحوتة 4">
+                </div>
+                <div class="art-info">
+                    <h3>النقش السومري</h3>
+                    <p>العصر السومري القديم</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/photo_5373074057068224799_y.jpg"
+                data-title="الألواح الفلكية" data-artist="حضارة بلاد ما بين النهرين"
+                data-year="حضارة بلاد ما بين النهرين"
+                data-desc="تُعد الألواح الفلكية والرياضية المكتشفة في حضارة وادي الرافدين دليلاً قاطعاً على التطور العلمي المتقدم الذي حققه الفلكيون العراقيون القدماء في رصد وحساب حركة الأجرام السماوية. يظهر في هذا اللوح الطيني المخططات والدوائر الفلكية الدقيقة التي استُخدمت لتقسيم السماء وتدوين الظواهر الكونية والمسارات النجمية، مما يعكس العمق المعرفي والقدرة الرياضية الفائقة لدى علماء بابل وأشور في توثيق العلوم الفلكية بدقة متناهية.">
+                <div class="art-image-box">
+                    <img src="./sculpture/photo_5373074057068224799_y.jpg" alt="منحوتة 5">
+                </div>
+                <div class="art-info">
+                    <h3>الألواح الفلكية</h3>
+                    <p>حضارة بلاد ما بين النهرين</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/photo_5373074057068224797_y.jpg"
+                data-title="شريعة حمورابي" data-artist="مدارس النحت البابلية" data-year="عصر الإمبراطورية البابلية"
+                data-desc="تُعد مسلة حمورابي وثيقة تشريعية وتاريخية فريدة تعود إلى العصر البابلي القديم في حضارة وادي الرافدين، حيث تجسد أرقى معايير التنظيم القانوني والاجتماعي. يظهر في هذا العمل الفني البارز الملك حمورابي وهو يقف بخشوع أمام الإله 'شماش' (إله الشمس والعدالة) ليتسلم منه التشريعات والقوانين، في دلالة واضحة على استمداد السلطة القانونية من الأصول الإلهية. تضم المسلة نقوشاً مسمارية دقيقة تحتوي على مواد قانونية متقدمة تنظم حقوق الأفراد وواجباتهم وتحقق العدالة في المجتمع البابلي القديم.">
+                <div class="art-image-box">
+                    <img src="./sculpture/photo_5373074057068224797_y.jpg" alt="منحوتة 6">
+                </div>
+                <div class="art-info">
+                    <h3>شريعة حمورابي</h3>
+                    <p>عصر الإمبراطورية البابلية</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/photo_5373074057068224796_x.jpg"
+                data-title="الثور المجنح" data-artist="حضارة بلاد ما بين النهرين" data-year="حضارة بلاد ما بين النهرين"
+                data-desc="تُعد منحوتة الثور المجنح واحدة من الأعمال الفنية البارزة التي تعود إلى حضارة وادي الرافدين، حيث تُظهر المهارة الفنية والرمزية العميقة للفنانين البابليين. يظهر في هذا العمل الفني الثور المجنح وهو يقف بقوة أمام الإله 'شماش' (إله الشمس والعدالة) ليتسلم منه التشريعات والقوانين، في دلالة واضحة على استمداد السلطة القانونية من الأصول الإلهية.">
+                <div class="art-image-box">
+                    <img src="./sculpture/photo_5373074057068224796_x.jpg" alt="منحوتة 7">
+                </div>
+                <div class="art-info">
+                    <h3>الثور المجنح</h3>
+                    <p>حضارة بلاد ما بين النهرين</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/photo_5373074057068224800_y.jpg"
+                data-title="النخيل " data-artist="حضارة بلاد ما بين النهرين" data-year="حضارة بلاد ما بين النهرين"
+                data-desc="تُعد منحوتة النخيل واحدة من الأعمال الفنية البارزة التي تعود إلى حضارة وادي الرافدين، حيث تُظهر المهارة الفنية والرمزية العميقة للفنانين البابليين. يظهر في هذا العمل الفني النخيل وهو يقف بقوة أمام الإله 'شماش' (إله الشمس والعدالة) ليتسلم منه التشريعات والقوانين، في دلالة واضحة على استمداد السلطة القانونية من الأصول الإلهية.">
+                <div class="art-image-box">
+                    <img src="./sculpture/photo_5373074057068224800_y.jpg" alt="منحوتة 8">
+                </div>
+                <div class="art-info">
+                    <h3>النخيل </h3>
+                    <p>حضارة بلاد ما بين النهرين</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/photo_5373074057068224801_x.jpg"
+                data-title="الجني المجنح" data-artist="الفن الآشوري القديمة" data-year="عصر الإمبراطورية القديمة"
+                data-desc="تُعد منحوتات الجن أو الكائنات الحية المجنحة من أبرز الشواهد الفنية والدينية في العصر الآشوري القديم، حيث تظهر هذه الشخصيات الأسطورية بأجنحة بارزة وملابس مزخرفة بدقة عالية تعكس براعة النحات الآشوري. وغالباً ما يُصور هذا الكائن حاملاً رموزاً طقسية مقدسة (مثل مخروط الصنوبر والدلو) بهدف أداء طقوس التبريك والحماية لطرد الأرواح الشريرة وإضفاء الهيبة والقداسة على القصور الملكية وقاعات العرش في المدن الآشورية العريقة .">
+                <div class="art-image-box">
+                    <img src="./sculpture/photo_5373074057068224801_x.jpg" alt="منحوتة 9">
+                </div>
+                <div class="art-info">
+                    <h3>الجني المجنح</h3>
+                    <p>الفن الآشوري القديمة</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/photo_5373074057068224802_y.jpg"
+                data-title=" تمثال أبو الهول" data-artist="الحضارة المصرية القديمة" data-year=" الحضارة المصرية القديمة"
+                data-desc="يُعد أبو الهول في الحضارة المصرية القديمة رمزاً فريداً يجسد تلاحم القوة الجسدية المتمثلة في جسد الأسد مع الحكمة الإلهية أو الملكية المتمثلة في رأس الفرعون المرتدي للغطاء الملكي (النيمس) واللحية المستعارـة. وُضعت هذه التماثيل الضخمة غالباً لحراسة المعابد والمقابر الملكية وبث الهيبة وحماية الأماكن المقدسة، مما يعكس المعتقدات الدينية العميقة والبراعة الهندسية والفنية الفائقة التي بلغها النحات المصري القديم في تخليد السلطة والخلود الأبدي .">
+                <div class="art-image-box">
+                    <img src="./sculpture/photo_5373074057068224802_y.jpg" alt="منحوتة 10">
+                </div>
+                <div class="art-info">
+                    <h3> تمثال أبو الهول</h3>
+                    <p>الحضارة المصرية القديمة</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/photo_5372819335442801445_x.jpg"
+                data-title="التابوت الذهبي للملك توت عنخ آمون" data-artist="الحضارة المصرية القديمة"
+                data-year=" الحضارة المصرية القديمة"
+                data-desc="تُمثل مقبرة الملك توت عنخ آمون وتابوته الذهبي قمة الإبداع الفني والصياغة المعدنية في عصر الدولة الحديثة بمصر القديمة. يعكس هذا التابوت المصنوع من الذهب الخالص والمطعّم بالأحجار الكريمة دقة متناهية في تجسيد الملامح الملكية وشارات الحكم (العصا والمذبة)، إلى جانب الزخارف الدقيقة والنقوش الجنائزية التي تهدف إلى حماية الملك في رحلته نحو الخلود والعالم الآخر، مما يجعله شاهداً فريداً على عظمة الفنون الجنائزية الفرعونية.ي .">
+                <div class="art-image-box">
+                    <img src="./sculpture/photo_5372819335442801445_x.jpg" alt="منحوتة 11">
+                </div>
+                <div class="art-info">
+                    <h3>التابوت الذهبي للملك توت عنخ آمون</h3>
+                    <p>الحضارة المصرية القديمة</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./sculpture/photo_5373074057068224803_y.jpg"
+                data-title="الملكة نفرتيتي" data-artist="الحضارة المصرية القديمة" data-year=" الحضارة المصرية القديمة"
+                data-desc="الملكة نفرتيتي هي واحدة من أبرز الملوك في الحضارة المصرية القديمة، وتعتبر من أكثر الملوك إثارةً وتأثيراً في التاريخ المصري.">
+                <div class="art-image-box">
+                    <img src="./sculpture/photo_5373074057068224803_y.jpg" alt="منحوتة 12">
+                </div>
+                <div class="art-info">
+                    <h3>الملكة نفرتيتي</h3>
+                    <p>الحضارة المصرية القديمة</p>
+                </div>
+            </div>
+            <!-- نافذة العرض المنبثقة (Lightbox Modal) -->
+            <div id="artModal" class="modal" onclick="closeModalOutside(event)">
+                <div class="modal-content">
+                    <button class="close-btn" onclick="closeModal()">×</button>
+                    <div class="modal-image-container">
+                        <img id="modalImg" src="" alt="صورة مكبرة">
+                    </div>
+                    <div class="modal-details">
+                        <h2 id="modalTitle">-</h2>
+                        <div class="modal-meta">
+                            <p>الفنان/الحضارة: <span id="modalArtist">-</span></p>
+                            <p>الفترة الزمنية: <span id="modalYear">-</span></p>
+                        </div>
+                        <p class="modal-desc" id="modalDesc">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function openModal(card) {
+                    const modal = document.getElementById("artModal");
+                    document.getElementById("modalImg").src = card.getAttribute("data-img");
+                    document.getElementById("modalTitle").innerText = card.getAttribute("data-title");
+                    document.getElementById("modalArtist").innerText = card.getAttribute("data-artist");
+                    document.getElementById("modalYear").innerText = card.getAttribute("data-year");
+                    document.getElementById("modalDesc").innerText = card.getAttribute("data-desc");
+
+                    modal.classList.add("active");
+                    document.body.style.overflow = "hidden";
+                }
+
+                function closeModal() {
+                    const modal = document.getElementById("artModal");
+                    modal.classList.remove("active");
+                    document.body.style.overflow = "auto";
+                }
+
+                function closeModalOutside(event) {
+                    const modal = document.getElementById("artModal");
+                    if (event.target === modal) {
+                        closeModal();
+                    }
+                }
+            </script>
+</body>
+
+</html>

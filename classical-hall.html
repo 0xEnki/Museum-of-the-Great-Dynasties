@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قاعة الفن الكلاسيكي - المتحف الرقمي</title>
+    <style>
+        :root {
+            --bg-color: #0b0b0b;
+            --card-bg: #141414;
+            --accent-gold: #f39c12;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --border-color: #2a2a2a;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            color: var(--accent-gold);
+            text-decoration: none;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent-gold);
+            background: rgba(243, 156, 18, 0.05);
+            transform: translateX(-4px);
+        }
+
+        .hall-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .hall-header h1 {
+            color: var(--accent-gold);
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .hall-header .subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .art-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            height: 350px;
+        }
+
+        .art-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-gold);
+            box-shadow: 0 15px 40px rgba(243, 156, 18, 0.15);
+        }
+
+        .art-image-box {
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+        }
+
+        .art-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .art-card:hover .art-image-box img {
+            transform: scale(1.08);
+        }
+
+        .art-info {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+
+        .art-info h3 {
+            margin: 0 0 6px 0;
+            font-size: 1.15rem;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .art-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* نافذة العرض المنبثقة (Lightbox Modal) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: #161616;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 900px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-image-container {
+            width: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            max-height: 500px;
+        }
+
+        .modal-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .modal-details {
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: right;
+            direction: rtl;
+        }
+
+        .modal-details h2 {
+            color: var(--accent-gold);
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .modal-meta {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-meta p {
+            margin: 6px 0;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .modal-meta span {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .modal-desc {
+            color: #d0d0d0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .close-btn:hover {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                grid-template-columns: 1fr;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .modal-image-container {
+                max-height: 300px;
+            }
+
+            .modal-details {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">
+            <span>←</span> العودة للرئيسية
+        </a>
+
+        <div class="hall-header">
+            <h1>قاعة الفن الكلاسيكي</h1>
+            <p class="subtitle">مجموعة مميزة من الأعمال الكلاسيكية الخالدة عبر العصور (انقر على أي لوحة للتفاصيل)</p>
+        </div>
+
+        <div class="gallery-grid">
+
+            <!-- لوحة 1 -->
+            <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486296_y.jpg"
+                data-title="  للوحة الفنية الكلاسيكية" data-artist="فنان-----" data-year="...."
+                data-desc="يُجسد هذا العمل الفني الكلاسيكي جماليات العمارة الإسلامية والتراث العمراني الأصيل من خلال توثيق المشاهد الحضرية القديمة والأزقة التاريخية. يبرز في التكوين استخدام الأقواس المعمارية المدببة، والأبواب الخشبية ذات اللون الأزرق العتيق، والفوانيس التقليدية المتدلية، إلى جانب إبراز القباب والمآذن في الأفق، مستخدماً تدرجات لونية ترابية وذهبية دافئة تعكس روح التراث المعماري والحنين إلى الأماكن التاريخية بأسلوب تصويري كلاسيكي رصين.">
+                <div class="art-image-box">
+                    <img src="./classical/photo_5375071135256486296_y.jpg" alt="لوحة كلاسيكية 1">
+                </div>
+                <div class="art-info">
+                    <h3>للوحة الفنية الكلاسيكية</h3>
+                    <p>فنان :--------</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486301_y.jpg"
+                data-title="اللوحة الفنية الكلاسيكية" data-artist="فنان-----" data-year="...."
+                data-desc="يُجسد هذا العمل الفني الكلاسيكي جماليات الفنون الروحية والتراثية من خلال توثيق طقوس الرقص الصوفي المولوي. يبرز في التكوين تجسيد لشخصية الدراويش في حالة دوران دائري متناسق مع ثنيات الثوب الواسع والقبعة التقليدية، مستخدماً خلفية هندسية وخطوطاً دقيقة متداخلة تدمج بين تدرجات الألوان الترابية والحارة، مما يعكس الب ابعاد الروحية والجمالية المتأصلة في التراث الثقافي والفني.">
+                <div class="art-image-box">
+                    <img src="./classical/photo_5375071135256486301_y.jpg" alt="لوحة كلاسيكية 2">
+                </div>
+                <div class="art-info">
+                    <h3>للوحة الفنية الكلاسيكية</h3>
+                    <p>فنان :--------</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486297_y.jpg"
+                data-title="أسلوب الفسيفساء التراثي" data-artist="فنان-----" data-year="...."
+                data-desc="يُجسد هذا العمل الفني الكلاسيكي تقنية الفسيفساء العريقة في توثيق المشاهد التراثية والتشخيصية بدقة عالية. يبرز في التكوين تجسيد لامرأة بملامح شرقية وشعر طويل متدفق تجلس بالقرب من نار مضاءة، مستخدمة قطعاً صغيرة ومتناسقة من الحجارة أو الزجاج الملون لتشكيل التفاصيل الدقيقة للأزياء التقليدية وألسنة اللهب، مما يعكس غنى الفنون التقليدية وقدرتها على التعبير الجمالي والقصصي في التراث البصري.">
+                <div class="art-image-box">
+                    <img src="./classical/photo_5375071135256486297_y.jpg" alt="لوحة كلاسيكية 3">
+                </div>
+                <div class="art-info">
+                    <h3>أسلوب الفسيفساء التراثي</h3>
+                    <p>فنان :--------</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486306_y.jpg"
+                data-title="معالم بلاد الرافدين القديمة" data-artist="فنان-----" data-year="...."
+                data-desc="يُجسد هذا العمل الفني الكلاسيكي عمق الهوية التاريخية والحضارية لبلاد الرافدين من خلال المزج البصري بين إرث الحضارات القديمة والعمارة الإسلامية التقليدية. يبرز في التكوين الجداري تناغم فريد يجمع بين المعالم الآشورية والبابلية العريقة (مثل الزقورة وبوابة عشتار الزرقاء) وبين العمارة البغدادية الأصيلة والقباب الإسلامية والشناشيل الخشبية، تتوسطها النخلة العراقية ونهر دجلة تحلق فوقه حمامات السلام، مما يعكس استمرارية الذاكرة التاريخية والتلاحم الثقافي بأسلوب تصويري توثيقي رفيع.">
+                <div class="art-image-box">
+                    <img src="./classical/photo_5375071135256486306_y.jpg" alt="لوحة كلاسيكية 4">
+                </div>
+                <div class="art-info">
+                    <h3>معالم بلاد الرافدين القديمة</h3>
+                    <p>فنان :--------</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486311_x.jpg"
+                data-title=" مدينة بغداد التاريخية" data-artist="فنان-----" data-year="...."
+                data-desc="يُجسد هذا العمل الفني الكلاسيكي حواراً بصرياً مبتكراً بين العمارة التذكارية المعاصرة والتراث الفني العالمي، من خلال توظيف معالم مدينة بغداد برؤية سريالية وتعبيرية. يبرز في التكوين تجسيد لنصب الشهيد العراقي بقبّته المفتوحة، محاطاً ببحر من الأبنية والأضواء، وتعلوه سماء ليلية دوامية نابضة بالنجوم مستوحاة من الأسلوب الفانغوجي (نسبة إلى فان جوخ)، مما يمزج بين رمزية المكان التاريخي وديناميكية الحركة اللونية والانفعال البصري في الفن المعاصر، ليعكس الذاكرة الجماعية لبلاد الرافدين.">
+                <div class="art-image-box">
+                    <img src="./classical/photo_5375071135256486311_x.jpg" alt="لوحة كلاسيكية 5">
+                </div>
+                <div class="art-info">
+                    <h3>مدينة بغداد التاريخية</h3>
+                    <p>فنان :--------</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486314_y.jpg"
+                data-title="أسلوب سريالي وتعبيري " data-artist="فنان-----" data-year="...."
+                data-desc="يُجسد هذا العمل الفني الكلاسيكي حواراً بصرياً مبتكراً يدمج بين العمارة التراثية الإسلامية والأساليب التعبيرية العالمية. يبرز في التكوين تجسيد لمئذنة الملوية في سامراء، محاطاً ببحر من الأبنية والأضواء الليلية للمدينة، وتعلوه سماء ليلية دوامية نابضة بالنجوم مستوحاة من لوحة 'ليلة النجوم' للفنان فان جوخ، مما يمزج بين رمزية المكان التاريخي وديناميكية الحركة اللونية والانفعال البصري في الفن المعاصر، ليعكس الذاكرة الجماعية للتراث العراقي والإسلامي.">
+                <div class="art-image-box">
+                    <img src="./classical/photo_5375071135256486314_y.jpg" alt="لوحة كلاسيكية 6">
+                </div>
+                <div class="art-info">
+                    <h3>أسلوب سريالي وتعبيري </h3>
+                    <p>فنان :--------</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486319_y.jpg"
+                data-title="مشهداً شاعرياً وتراثياً" data-artist="فنان-----" data-year="...."
+                data-desc="يُجسد هذا العمل الفني الكلاسيكي التناغم بين البيئة الطبيعية والعنصر البشري من منظور تعبيري وتراثي رصين. يبرز في التكوين منظر لامرأة ترتدي ثوباً أزرق منسدلاً وتجلس عند عتبة كهف معتم، متأملةً مشهداً طبيعياً خارجياً يزخر بالنخيل والأشجار تحت سماء ترابية وذهبية متوهجة، مما يعكس حالات التأمل والارتباط العضوي بالأرض والطبيعة في الفنون البصرية.">
+                <div class="art-image-box">
+                    <img src="./classical/photo_5375071135256486319_y.jpg" alt="لوحة كلاسيكية 7">
+                </div>
+                <div class="art-info">
+                    <h3>مشهداً شاعرياً وتراثياً</h3>
+                    <p>فنان :--------</p>
+                </div>
+            </div>
+            <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486322_y.jpg"
+                data-title=" تجسد خريطة بانورامية غنية بالرموز الحضارية" data-artist="فنان-----" data-year="...."
+                data-desc="يُجسد هذا العمل الفني الكلاسيكي بانوراما بصرية متكاملة توثق عمق الهوية التاريخية والحضارية لبلاد الرافدين من خلال المزج الفني بين إرث الحضارات القديمة والمعالم الإسلامية والوطنية. يبرز في التكوين خريطة متخيلة تضم أبرز الرموز الأثرية والعمرانية (كالزقورة، واللاماسو، ومئذنة سامراء، وبوابة عشتار) يتوسطها نهر دجلة والفرات والعلم العراقي، مما يعكس استمرارية الذاكرة التاريخية والتلاحم الثقافي والحضاري عبر العصور بأسلوب تصويري توثيقي رفيع."">
+                <div class=" art-image-box">
+                <img src="./classical/photo_5375071135256486322_y.jpg" alt="لوحة كلاسيكية 8">
+            </div>
+            <div class="art-info">
+                <h3> تجسد خريطة بانورامية غنية بالرموز الحضارية</h3>
+                <p>فنان :--------</p>
+            </div>
+        </div>
+        <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486323_x.jpg"
+            data-title=" الرموز الرافدية العريقة" data-artist="فنان-----" data-year="...."
+            data-desc="يُجسد هذا العمل الفني الكلاسيكي عمق الهوية التاريخية والحضارية لبلاد الرافدين من خلال المزج البصري بين إرث الحضارات القديمة والبيئة العراقية الأصيلة. يبرز في التكوين تجسيد لتمثال 'اللاماسو' الآشوري المجنح تحيط به الرموز والكتابات المسمارية في الخلفية، بينما يظهر في المقدمة مشهد أهوار العراق متمثلاً بقوارب المشحوف وبيوت القصب التقليدية، مما يعكس استمرارية الذاكرة التاريخية والتلاحم الثقافي بأسلوب تصويري توثيقي رفيع.">
+            <div class="art-image-box">
+                <img src="./classical/photo_5375071135256486323_x.jpg" alt="لوحة كلاسيكية 9">
+            </div>
+            <div class="art-info">
+                <h3> الرموز الرافدية العريقة</h3>
+                <p>فنان :--------</p>
+            </div>
+        </div>
+        <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486328_x.jpg"
+            data-title="بيئة الأهوار العراقية الأصيلة" data-artist="فنان-----" data-year="...."
+            data-desc="يُجسد هذا العمل الفني الكلاسيكي جانباً من الحياة اليومية والنشاط المعيشي في بيئة الأهوار العراقية من خلال توثيق تفاصيل التراث الريفي والبيئي الأصيل. يبرز في التكوين قارب 'المشحوف' العراقي وهو يشق مياه النهر، تتوسطه امرأة تقف ممسكة بالعصا التقليدية للتوجيه، وأخرى تستخدم شبكة الصيد، تحيط بهما ضفاف القصب وبساتين النخيل الممتدة، مما يعكس بصدق الارتباط العضوي بين الإنسان والبيئة المائية والذاكرة البصرية التراثية بأسلوب تصويري واقعي رفيع.">
+            <div class="art-image-box">
+                <img src="./classical/photo_5375071135256486328_x.jpg" alt="لوحة كلاسيكية 10">
+            </div>
+            <div class="art-info">
+                <h3>بيئة الأهوار العراقية الأصيلة</h3>
+                <p>فنان :--------</p>
+            </div>
+        </div>
+        <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486326_y.jpg"
+            data-title="الحياة البغدادية الأصيلة" data-artist="فنان-----" data-year="...."
+            data-desc="يُجسد هذا العمل الفني الكلاسيكي جانباً من الحياة اليومية والذاكرة الاجتماعية لمدينة بغداد من خلال توثيق أجواء المقاهي الشعبية البغدادية الأصيلة. يبرز في التكوين رجل يرتدي السدارة البغدادية ويجلس مسترخياً ليقرأ الجريدة، تحيط به تفاصيل بيئية دقيقة تشمل السماور النحاسي، واستكان الشاي، والأرضية المزخرفة، والشناشيل، ومحل 'أبو صادق' في الخلفية، مما يعكس بصدق روح التراث العراقي والهوية البصرية بأسلوب تصويري واقعي وتوثيقي رفيع.">
+            <div class="art-image-box">
+                <img src="./classical/photo_5375071135256486326_y.jpg" alt="لوحة كلاسيكية 11">
+            </div>
+            <div class="art-info">
+                <h3>الحياة البغدادية الأصيلة</h3>
+                <p>فنان :--------</p>
+            </div>
+        </div>
+        <div class="art-card" onclick="openModal(this)" data-img="./classical/photo_5375071135256486331_y.jpg"
+            data-title="الحرف اليدوية التقليدية في الأهوار العراقية" data-artist="فنان-----" data-year="...."
+            data-desc="يُجسد هذا العمل الفني الكلاسيكي جانباً من المهن الحرفية والتراث الشعبي العراقي من خلال توثيق عملية صناعة الفخار التقليدي بأسلوب واقعي يبرز ارتباط الإنسان بأرضه. يبرز في التكوين تجسيد لامرأة ترتدي الزي الريفي التقليدي وهي تنشغل بتشكيل الجرار الطينية الفخارية بدقة، محاطة بأوانٍ فخارية ضخمة في المقدمة وخلفية ريفية هادئة، مما يعكس أصالة الحرف اليدوية والقيم التراثية المتأصلة في الهوية البصرية بأسلوب توثيقي رفيع.">
+            <div class="art-image-box">
+                <img src="./classical/photo_5375071135256486331_y.jpg" alt="لوحة كلاسيكية 12">
+            </div>
+            <div class="art-info">
+                <h3>الحرف اليدوية التقليدية في الأهوار العراقية</h3>
+                <p>فنان :--------</p>
+            </div>
+        </div>
+        <!-- نافذة العرض (Modal) -->
+        <div id="artModal" class="modal" onclick="closeModalOutside(event)">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeModal()">×</button>
+                <div class="modal-image-container">
+                    <img id="modalImg" src="" alt="عرض مكبر">
+                </div>
+                <div class="modal-details">
+                    <h2 id="modalTitle">عنوان اللوحة</h2>
+                    <div class="modal-meta">
+                        <p>الفنان/المدرسة: <span id="modalArtist">اسم الفنان</span></p>
+                        <p>سنة الإنتاج: <span id="modalYear">السنة</span></p>
+                    </div>
+                    <p class="modal-desc" id="modalDesc">وصف العمل الفني...</p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function openModal(card) {
+                const modal = document.getElementById("artModal");
+                document.getElementById("modalImg").src = card.getAttribute("data-img");
+                document.getElementById("modalTitle").innerText = card.getAttribute("data-title");
+                document.getElementById("modalArtist").innerText = card.getAttribute("data-artist");
+                document.getElementById("modalYear").innerText = card.getAttribute("data-year");
+                document.getElementById("modalDesc").innerText = card.getAttribute("data-desc");
+
+                modal.classList.add("active");
+                document.body.style.overflow = "hidden";
+            }
+
+            function closeModal() {
+                const modal = document.getElementById("artModal");
+                modal.classList.remove("active");
+                document.body.style.overflow = "auto";
+            }
+
+            function closeModalOutside(event) {
+                const modal = document.getElementById("artModal");
+                if (event.target === modal) {
+                    closeModal();
+                }
+            }
+        </script>
+</body>
+
+</html>

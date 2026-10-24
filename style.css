@@ -1,0 +1,4855 @@
+/* ---------- 1. Design tokens ---------- */
+:root {
+    color-scheme: dark;
+
+    /* Colour */
+    --color-bg: #0e0e10;
+    --color-bg-alt: #131316;
+    --color-surface: #1a1a1f;
+    --color-surface-2: #212127;
+    --color-border: #2c2c34;
+    --color-text: #f2efe8;
+    --color-text-muted: #b5b1a8;
+    --color-accent: #d4af37;
+    --color-accent-strong: #e6c35c;
+    --color-on-accent: #15110a;
+    --color-danger: #ff8f84;
+    --color-success: #7fd6a0;
+
+    /* Values the original hard-coded inside the timeline / table / archive blocks */
+    --color-white: #ffffff;
+    --color-text-soft: #cccccc;
+    --color-text-dim: #aaaaaa;
+    --color-slate: #9ca3af;
+    --color-node: #111111;
+    --color-glass: rgb(26 26 26 / 0.7);
+    --color-gold-hairline: rgb(212 175 55 / 0.3);
+    --color-gold-faint: rgb(212 175 55 / 0.1);
+
+    /* Typography: Latin faces first, Arabic faces fill in the Arabic glyphs */
+    --font-display: 'Cormorant Garamond', 'Amiri', 'Times New Roman', serif;
+    --font-body: 'Inter', 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+
+    --fs-body: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+    --fs-lead: clamp(1.1rem, 1rem + 0.5vw, 1.3rem);
+    --fs-h3: clamp(1.35rem, 1.2rem + 0.6vw, 1.7rem);
+    --fs-h2: clamp(2rem, 1.5rem + 2vw, 3rem);
+    --fs-h1: clamp(2.6rem, 1.6rem + 4.6vw, 5.25rem);
+
+    /* The small gold labels above section titles were letter-spaced 2px in the
+       original. Tracking pulls Arabic letters apart (they are joined script),
+       so it is 0 here. Set to 2px to restore the exact original rendering. */
+    --eyebrow-tracking: 0;
+
+    /* Spacing & shape */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+    --space-8: clamp(4rem, 8vw, 7rem);
+    --radius-s: 6px;
+    --radius-m: 10px;
+    --radius-l: 16px;
+
+    --container: 1180px;
+    --gutter: clamp(1rem, 4vw, 2.5rem);
+    --header-h: 68px;
+
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --shadow-lift: 0 18px 40px -18px rgb(0 0 0 / 0.75);
+
+    /* Registry table columns (header and rows must share them) */
+    --table-cols: 1fr 1fr 2fr 2fr 1.5fr 1.5fr;
+}
+
+/* ---------- 2. Base ---------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: calc(var(--header-h) + 16px);
+    scrollbar-gutter: stable;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+/* Set by script.js while any dialog is open */
+html.is-locked {
+    overflow: hidden;
+}
+
+body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: 1.8;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+ul[role='list'] {
+    list-style: none;
+}
+
+a {
+    color: inherit;
+}
+
+button,
+input,
+select {
+    font: inherit;
+    color: inherit;
+}
+
+:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+main:focus {
+    outline: none;
+}
+
+::selection {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+}
+
+/* ---------- 3. Layout ---------- */
+.container {
+    width: min(100% - 2 * var(--gutter), var(--container));
+    margin-inline: auto;
+}
+
+.section {
+    padding-block: var(--space-8);
+}
+
+.section--alt {
+    background: var(--color-bg-alt);
+    border-block: 1px solid var(--color-border);
+}
+
+.section--bordered {
+    border-block-start: 1px solid var(--color-gold-faint);
+}
+
+.section__head {
+    max-width: 60ch;
+    margin-block-end: var(--space-6);
+}
+
+.section__title {
+    font-size: var(--fs-h2);
+}
+
+.section__intro {
+    margin-block-start: var(--space-3);
+    color: var(--color-text-muted);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.skip-link {
+    position: fixed;
+    inset-block-start: var(--space-3);
+    inset-inline-start: var(--space-3);
+    z-index: 2000;
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-weight: 600;
+    border-radius: var(--radius-s);
+    transform: translateY(-200%);
+}
+
+.skip-link:focus {
+    transform: none;
+}
+
+.notice {
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-m);
+    color: var(--color-text-muted);
+}
+
+.notice .btn {
+    margin-block-start: var(--space-3);
+}
+
+/* ---------- 4. Components ---------- */
+
+/* ----- Buttons ----- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 46px;
+    padding: 0.55rem 1.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-s);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.25s var(--ease), background-color 0.25s, border-color 0.25s, color 0.25s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn--accent {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+}
+
+.btn--accent:hover {
+    background: var(--color-accent-strong);
+}
+
+.btn--ghost {
+    background: transparent;
+    border-color: var(--color-text-muted);
+    color: var(--color-text);
+}
+
+.btn--ghost:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.btn--sm {
+    min-height: 40px;
+    padding-inline: 1.1rem;
+    font-size: 0.95rem;
+}
+
+.btn--block {
+    width: 100%;
+}
+
+.btn[disabled],
+.btn[aria-busy='true'] {
+    opacity: 0.6;
+    cursor: progress;
+    transform: none;
+}
+
+.btn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    background: none;
+    border: 0;
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-link__arrow {
+    transition: transform 0.25s var(--ease);
+}
+
+.btn-link:hover .btn-link__arrow {
+    transform: translateX(-4px);
+}
+
+.btn-link:hover {
+    color: var(--color-accent-strong);
+}
+
+.btn-link:disabled {
+    color: var(--color-border);
+    cursor: not-allowed;
+}
+
+/* ----- Header ----- */
+.site-header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 100;
+    background: rgb(14 14 16 / 0.82);
+    backdrop-filter: blur(14px);
+    border-block-end: 1px solid transparent;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.site-header.is-scrolled {
+    background: rgb(14 14 16 / 0.95);
+    border-block-end-color: var(--color-border);
+}
+
+.site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--header-h);
+}
+
+.brand {
+    order: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    text-decoration: none;
+    color: var(--color-accent);
+}
+
+.brand__name {
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.site-header__cta {
+    order: 2;
+    margin-inline-start: auto;
+}
+
+.nav-toggle {
+    order: 3;
+    display: grid;
+    place-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.nav-toggle:hover {
+    border-color: var(--color-accent);
+}
+
+.nav-toggle__bar {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--color-text);
+    transition: transform 0.3s var(--ease), opacity 0.2s;
+}
+
+.nav-toggle[aria-expanded='true'] .nav-toggle__bar:nth-of-type(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle[aria-expanded='true'] .nav-toggle__bar:nth-of-type(2) {
+    opacity: 0;
+}
+
+.nav-toggle[aria-expanded='true'] .nav-toggle__bar:nth-of-type(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Mobile nav = drop-down panel */
+.primary-nav {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 100%;
+    padding: var(--space-3) var(--gutter) var(--space-5);
+    background: var(--color-bg-alt);
+    border-block-end: 1px solid var(--color-border);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.25s var(--ease), transform 0.25s var(--ease), visibility 0s 0.25s;
+}
+
+.primary-nav.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+}
+
+.primary-nav__list {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+}
+
+.primary-nav a {
+    display: block;
+    padding: var(--space-3) 0;
+    color: var(--color-text);
+    text-decoration: none;
+    border-block-end: 1px solid var(--color-border);
+    transition: color 0.2s;
+}
+
+.primary-nav a:hover,
+.primary-nav a[aria-current='true'] {
+    color: var(--color-accent);
+}
+
+/* Six links + the booking button need ~850px, hence 1000px for the inline nav */
+@media (min-width: 1000px) {
+    .nav-toggle {
+        display: none;
+    }
+
+    .primary-nav {
+        position: static;
+        order: 2;
+        flex: 1;
+        margin-inline-start: var(--space-6);
+        padding: 0;
+        background: none;
+        border: 0;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+    }
+
+    .primary-nav__list {
+        flex-direction: row;
+        gap: var(--space-5);
+    }
+
+    .primary-nav a {
+        padding: var(--space-2) 0;
+        border: 0;
+        border-block-end: 2px solid transparent;
+    }
+
+    .primary-nav a[aria-current='true'] {
+        border-block-end-color: var(--color-accent);
+    }
+
+    .site-header__cta {
+        order: 3;
+        margin-inline-start: 0;
+    }
+}
+
+.hero {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    /* دفع المحتوى نحو اليمين */
+    overflow: hidden;
+    padding: 0 50px;
+    /* مسافة بسيطة من حافة الشاشة اليمنى */
+}
+
+/* جعل الفيديو يغطي الشاشة بكامل حجمها بدون فراغات */
+.hero__bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* لملء المساحة بالكامل والمحافظة على أبعاد الفيديو */
+    z-index: -2;
+}
+
+/* طبقة التعتيم لتوضيح النصوص */
+.hero__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    /* درجة تعتيم تناسب التصميم الداكن والذهبي */
+    z-index: -1;
+}
+
+.hero .container.hero__content {
+    margin: 0 !important;
+    /* إلغاء margin: auto لتسحب النصوص لليمين */
+    padding: 0;
+    text-align: right !important;
+    /* محاذاة النص لليمين */
+    max-width: 650px;
+    /* عرض مناسب لكتلة النص */
+}
+
+.hero__title {
+    max-width: 16ch;
+    font-size: var(--fs-h1);
+    font-weight: 700;
+    animation: rise 1s var(--ease) 0.15s both;
+}
+
+.hero__lead {
+    max-width: 52ch;
+    margin-block: var(--space-5) var(--space-6);
+    color: var(--color-text-muted);
+    font-size: var(--fs-lead);
+    animation: rise 1s var(--ease) 0.35s both;
+}
+
+.hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    animation: rise 1s var(--ease) 0.55s both;
+}
+
+.hero__hours {
+    padding-block: var(--space-4);
+    border-block-start: 1px solid rgb(255 255 255 / 0.14);
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    animation: fade 1.2s ease 0.9s both;
+}
+
+@keyframes hero-settle {
+    from {
+        transform: scale(1.08);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ----- Section headings (timeline + registry): same look as the original blocks ----- */
+.section-head {
+    --eyebrow-size: 1.1rem;
+    --title-size: 2.5rem;
+    margin-block-end: 3.5rem;
+}
+
+.section-head--center {
+    text-align: center;
+}
+
+.section-head__eyebrow,
+.treasured-subtitle {
+    display: block;
+    color: var(--color-accent);
+    font-size: var(--eyebrow-size);
+    font-weight: 600;
+    letter-spacing: var(--eyebrow-tracking);
+    margin-block-end: 0.5rem;
+}
+
+.section-head__title {
+    margin: 0;
+    color: var(--color-white);
+    font-size: var(--title-size);
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.section-head--timeline {
+    --title-size: 2.5rem;
+}
+
+@media (min-width: 768px) {
+    .section-head--timeline {
+        --title-size: 3.2rem;
+    }
+}
+
+.section-head--archive {
+    --title-size: 2.8rem;
+    margin-block-end: 2.5rem;
+}
+
+.archive-desc {
+    margin-block-start: 0.75rem;
+    color: var(--color-slate);
+    font-size: 1rem;
+    line-height: 1.8;
+}
+
+/* ----- Featured carousel (3D cover-flow) -----
+   Original intent: a Materialize carousel – 1500px perspective, 250px slides,
+   235px images, 10px radius, glass box. Rebuilt without jQuery/Materialize
+   (the site's CSP blocks third-party scripts). */
+.showcase {
+    padding-block: var(--space-6);
+}
+
+.showcase {
+    background-color: #0d0d0d;
+    padding: 80px 0;
+    direction: rtl;
+}
+
+/* ترتيب الحاوية لتكون شبكية أو مرنة إذا أردت العنوان باليمين والكاروسيل بجانبه، أو وضعه في الأعلى كعنوان رئيسي للقسم */
+.showcase__container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* تنسيق العنوان في الجهة اليمنى */
+.showcase__header {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.showcase__title {
+    font-size: 1.8rem;
+    color: #f39c12;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.showcase__subtitle {
+    font-size: 0.95rem;
+    color: #aaa;
+}
+
+.css-carousel-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    perspective: 1600px;
+    overflow: hidden;
+    padding: 30px 0 60px 0;
+}
+
+.carousel__track-wrapper {
+    position: relative;
+    height: 440px;
+}
+
+.carousel__track {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* تصميم البطاقة الأساسية (البوكس) */
+.carousel__item {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 420px;
+    margin-left: -150px;
+    margin-top: -210px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(0, -50%) scale(0.75) rotateY(0deg);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* حاوية الصورة داخل البوكس */
+.carousel__image-box {
+    width: 100%;
+    height: 320px;
+    overflow: hidden;
+    background: #000;
+}
+
+.carousel__image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* تنسيق الكتابة (Caption) داخل البوكس */
+.carousel__item .caption {
+    padding: 12px 15px;
+    text-align: right;
+    direction: rtl;
+    color: #fff;
+    background: #1a1a1a;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.carousel__item .caption strong {
+    display: block;
+    font-size: 1.1rem;
+    color: #f39c12;
+    margin-bottom: 4px;
+}
+
+.carousel__item .caption span {
+    display: block;
+    font-size: 0.82rem;
+    color: #bbb;
+    line-height: 1.3;
+}
+
+/* --- تقليل المسافة بين الصور (تعشيق وتداخل أجمل) --- */
+.carousel__item.active {
+    opacity: 1;
+    z-index: 10;
+    pointer-events: auto;
+    transform: translateX(0) scale(1) rotateY(0deg);
+    box-shadow: 0 15px 45px rgba(243, 156, 18, 0.3);
+}
+
+.carousel__item.next {
+    opacity: 0.6;
+    z-index: 5;
+    transform: translateX(100%) scale(0.85) rotateY(-15deg);
+    /* تم تقليل المسافة هنا */
+    pointer-events: none;
+}
+
+.carousel__item.prev {
+    opacity: 0.6;
+    z-index: 5;
+    transform: translateX(-100%) scale(0.85) rotateY(15deg);
+    /* وتم تقليل المسافة هنا أيضاً */
+    pointer-events: none;
+}
+
+/* --- أزرار التنقل والنقاط --- */
+.carousel__nav .nav--prev,
+.carousel__nav .nav--next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid #444;
+    cursor: pointer;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    transition: 0.3s;
+}
+
+.carousel__nav .nav--prev::before {
+    content: '❮';
+    font-size: 0.9rem;
+}
+
+.carousel__nav .nav--next::before {
+    content: '❯';
+    font-size: 0.9rem;
+}
+
+.carousel__nav .nav--prev:hover,
+.carousel__nav .nav--next:hover {
+    background: #f39c12;
+    color: #000;
+    border-color: #f39c12;
+}
+
+.carousel__nav .nav--prev {
+    left: 10px;
+}
+
+.carousel__nav .nav--next {
+    right: 10px;
+}
+
+.carousel__dots {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 20;
+}
+
+.carousel__dot {
+    width: 10px;
+    height: 10px;
+    background: #444;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-block;
+}
+
+.carousel__dot.active {
+    background: #f39c12;
+    transform: scale(1.3);
+}
+
+/* ----- Exhibition / treasure grid + "wall label" cards ----- */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: var(--space-5);
+}
+
+.grid>.notice {
+    grid-column: 1 / -1;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-m);
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s, transform 0.35s var(--ease);
+}
+
+/* The whole card opens the details; the button inside is the keyboard/screen-reader target */
+.card[data-id] {
+    cursor: pointer;
+}
+
+.card:hover,
+.card:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-lift);
+}
+
+.card:active {
+    transform: scale(0.99);
+}
+
+.card__media {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--color-surface-2);
+}
+
+.card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s var(--ease);
+}
+
+.card:hover .card__media img {
+    transform: scale(1.05);
+}
+
+/* The "plaque": hall name + title, like a museum wall label */
+.card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    border-block-start: 2px solid var(--color-accent);
+}
+
+.card__hall {
+    color: var(--color-accent);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.card__title {
+    font-size: var(--fs-h3);
+}
+
+.card__desc {
+    flex: 1;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}
+
+.card__body .btn-link {
+    align-self: flex-start;
+}
+
+/* Skeleton placeholders */
+.skeleton-card {
+    position: relative;
+    min-height: 420px;
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-m);
+}
+
+.skeleton-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.05), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.6s infinite;
+}
+
+@keyframes shimmer {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+/* One-time scroll reveal. Only hidden when scripts run, so no-JS visitors still see everything. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+        transition-delay: calc(var(--i, 0) * 110ms);
+    }
+
+    .reveal.is-visible {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ----- Timeline ----- */
+.timeline-zigzag {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto;
+    list-style: none;
+}
+
+.timeline-zigzag::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    inset-block: 0;
+    width: 2px;
+    background-color: var(--color-accent);
+}
+
+.timeline-row {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-block-end: 4rem;
+    width: 100%;
+}
+
+.timeline-row:last-child {
+    margin-block-end: 0;
+}
+
+.timeline-side-content {
+    width: 45%;
+}
+
+.timeline-center-node {
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 45px;
+    height: 45px;
+    background-color: var(--color-node);
+    border: 2px solid var(--color-accent);
+    border-radius: 50%;
+    transition: background-color 0.3s, transform 0.35s var(--ease);
+}
+
+.timeline-center-node span {
+    color: var(--color-accent);
+    font-weight: bold;
+    font-size: 1rem;
+    line-height: 1;
+    transition: color 0.3s;
+}
+
+.timeline-row:hover .timeline-center-node {
+    background-color: var(--color-accent);
+    transform: scale(1.1);
+}
+
+.timeline-row:hover .timeline-center-node span {
+    color: var(--color-on-accent);
+}
+
+.highlight-box {
+    padding: 1.25rem;
+    background: var(--color-glass);
+    border: 1px solid var(--color-gold-hairline);
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    transition: border-color 0.3s;
+}
+
+.timeline-row:hover .highlight-box {
+    border-color: var(--color-accent);
+}
+
+.highlight-label {
+    display: block;
+    margin-block-end: 0.3rem;
+    color: var(--color-accent);
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.highlight-box p {
+    margin: 0;
+    color: var(--color-text-soft);
+    font-size: 0.9rem;
+}
+
+.era-date {
+    display: block;
+    margin-block-end: 0.2rem;
+    color: var(--color-accent);
+    font-size: 0.95rem;
+    font-weight: bold;
+}
+
+.era-title {
+    margin-block-end: 0.5rem;
+    color: var(--color-white);
+    font-size: 1.35rem;
+    font-weight: bold;
+}
+
+.era-desc {
+    margin: 0;
+    color: var(--color-text-dim);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .timeline-zigzag::before {
+        left: auto;
+        right: 21.5px;
+        translate: none;
+    }
+
+    .timeline-row {
+        flex-direction: column;
+        align-items: stretch;
+        padding-inline-end: 62px;
+        margin-block-end: 3rem;
+    }
+
+    .timeline-center-node {
+        left: auto;
+        right: 0;
+        inset-block-start: 0;
+        translate: none;
+    }
+
+    .timeline-side-content {
+        width: 100%;
+        margin-block-end: 1rem;
+    }
+
+    .timeline-side-content--info {
+        order: 1;
+    }
+
+    .timeline-side-content--aside {
+        order: 2;
+    }
+}
+
+/* ----- Treasures: search + filters ----- */
+.treasured-section {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    padding: 4rem 1rem;
+    background-color: rgb(0 0 0 / 0.85);
+    text-align: center;
+}
+
+.treasured-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.treasured-header {
+    text-align: center;
+}
+
+.treasured-subtitle {
+    --eyebrow-size: 0.9rem;
+    margin-block-end: 0.3rem;
+}
+
+.treasured-title {
+    margin: 0;
+    color: var(--color-white);
+    font-size: 2.2rem;
+    font-weight: bold;
+}
+
+.treasured-search-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-block-start: 0.5rem;
+}
+
+.treasured-search-input {
+    width: 100%;
+    max-width: 450px;
+    padding: 0.75rem 1.25rem;
+    background: rgb(0 0 0 / 0.9);
+    border: 1px solid rgb(212 175 55 / 0.4);
+    border-radius: 9999px;
+    color: var(--color-white);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.treasured-search-input::placeholder {
+    color: var(--color-slate);
+}
+
+.treasured-search-input:hover {
+    border-color: rgb(212 175 55 / 0.7);
+}
+
+.treasured-search-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgb(212 175 55 / 0.28);
+}
+
+.treasured-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-block-start: 0.5rem;
+}
+
+.t-filter-btn {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 1.25rem;
+    background: rgb(0 0 0 / 0.8);
+    border: 1px solid var(--color-gold-hairline);
+    border-radius: 9999px;
+    color: var(--color-white);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.25s var(--ease);
+}
+
+/* Reserves the bold width so the row does not jiggle when a pill turns bold */
+.t-filter-btn::after {
+    content: attr(data-label);
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+.t-filter-btn:hover,
+.t-filter-btn.active {
+    background: var(--color-accent);
+    color: #000000;
+    border-color: var(--color-accent);
+    font-weight: bold;
+}
+
+.t-filter-btn:active {
+    transform: scale(0.96);
+}
+
+.treasure-results {
+    padding-block: var(--space-7) var(--space-8);
+}
+
+.treasure-empty {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+}
+
+/* ----- Registry table ----- */
+.table-filters {
+    margin-block: 0 var(--space-5);
+}
+
+.data-table {
+    border-radius: 8px;
+}
+
+.table-header-grid {
+    display: grid;
+    grid-template-columns: var(--table-cols);
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: rgb(26 26 26 / 0.9);
+    border: 1px solid rgb(212 175 55 / 0.3);
+    border-radius: 8px 8px 0 0;
+    text-align: start;
+}
+
+.th-item {
+    color: var(--color-accent);
+    font-size: 0.95rem;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.th-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0;
+    background: none;
+    border: 0;
+    color: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.th-sort:hover {
+    color: var(--color-accent-strong);
+}
+
+/* Sort indicator: a small triangle, up for ascending and down for descending */
+.th-sort::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-block-start: 5px solid currentColor;
+    opacity: 0.35;
+    transition: opacity 0.2s, transform 0.25s var(--ease);
+}
+
+[aria-sort='ascending'] .th-sort::after {
+    opacity: 1;
+    transform: rotate(180deg);
+}
+
+[aria-sort='descending'] .th-sort::after {
+    opacity: 1;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: var(--table-cols);
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: rgb(26 26 26 / 0.5);
+    border-block-end: 1px solid rgb(255 255 255 / 0.05);
+    text-align: start;
+    transition: background 0.2s;
+}
+
+.table-row[data-id] {
+    cursor: pointer;
+}
+
+.table-row:hover {
+    background: rgb(26 26 26 / 0.8);
+}
+
+.td-item {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.cell-code {
+    color: var(--color-accent);
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.cell-line {
+    display: block;
+}
+
+.cell-title {
+    display: block;
+    color: var(--color-white);
+    font-weight: bold;
+}
+
+.cell-sub {
+    display: block;
+    color: var(--color-slate);
+    font-size: 0.75rem;
+}
+
+.table-thumb {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--color-gold-hairline);
+    transition: transform 0.3s var(--ease), border-color 0.3s;
+}
+
+.table-row:hover .table-thumb {
+    transform: scale(1.08);
+    border-color: var(--color-accent);
+}
+
+.action-btn {
+    padding: 0.4rem 0.8rem;
+    background: transparent;
+    border: 1px solid var(--color-accent);
+    border-radius: 6px;
+    color: var(--color-accent);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, transform 0.25s var(--ease);
+}
+
+.action-btn:hover {
+    background: var(--color-accent);
+    color: var(--color-node);
+}
+
+.action-btn:active {
+    transform: scale(0.96);
+}
+
+.badge-status {
+    display: inline-block;
+    padding: 0.3rem 0.7rem;
+    background: var(--color-gold-faint);
+    border: 1px solid rgb(212 175 55 / 0.2);
+    border-radius: 20px;
+    color: var(--color-accent);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+/* Non-displayed pieces use the muted neutrals so the gold keeps meaning "on view" */
+.badge-status--restoration,
+.badge-status--storage {
+    background: transparent;
+    border-color: var(--color-border);
+    color: var(--color-text-muted);
+}
+
+.table-count {
+    margin-block-start: var(--space-3);
+    color: var(--color-slate);
+    font-size: 0.9rem;
+}
+
+.table-body>.notice {
+    border-radius: 0 0 var(--radius-m) var(--radius-m);
+}
+
+/* Narrow screens: each row becomes a compact card instead of scrolling sideways */
+@media (max-width: 999.98px) {
+    .table-header-grid {
+        display: none;
+    }
+
+    .table-body {
+        display: grid;
+        gap: var(--space-3);
+    }
+
+    .table-row {
+        grid-template-columns: auto 1fr;
+        grid-template-areas:
+            'preview name'
+            'preview material'
+            'code    status'
+            'actions actions';
+        gap: var(--space-2) var(--space-4);
+        border: 1px solid rgb(212 175 55 / 0.2);
+        border-radius: var(--radius-m);
+    }
+
+    .td-item[data-col='preview'] {
+        grid-area: preview;
+    }
+
+    .td-item[data-col='name'] {
+        grid-area: name;
+    }
+
+    .td-item[data-col='material'] {
+        grid-area: material;
+    }
+
+    .td-item[data-col='id'] {
+        grid-area: code;
+    }
+
+    .td-item[data-col='status'] {
+        grid-area: status;
+    }
+
+    .td-item[data-col='actions'] {
+        grid-area: actions;
+    }
+
+    .action-btn {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .table-thumb {
+        width: 64px;
+        height: 64px;
+    }
+}
+
+/* ----- About + contact ----- */
+.about {
+    display: grid;
+    gap: var(--space-5);
+}
+
+.about__text {
+    max-width: 62ch;
+    color: var(--color-text-muted);
+    font-size: var(--fs-lead);
+}
+
+@media (min-width: 900px) {
+    .about {
+        grid-template-columns: 1fr 1.6fr;
+        align-items: start;
+        gap: var(--space-7);
+    }
+}
+
+.about-contact {
+    margin-block-start: var(--space-7);
+}
+
+.contact-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-5);
+}
+
+.contact-list dt {
+    margin-block-end: var(--space-1);
+    color: var(--color-accent);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.contact-list a {
+    text-underline-offset: 4px;
+}
+
+.contact-list a:hover {
+    color: var(--color-accent);
+}
+
+/* ----- Booking form ----- */
+.booking {
+    display: grid;
+    gap: var(--space-6);
+}
+
+@media (min-width: 960px) {
+    .booking {
+        grid-template-columns: minmax(0, 1fr) 340px;
+        align-items: start;
+    }
+
+    .booking__summary {
+        position: sticky;
+        inset-block-start: calc(var(--header-h) + var(--space-5));
+    }
+}
+
+.booking__fields {
+    display: grid;
+    gap: var(--space-5);
+}
+
+.fieldset {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-m);
+}
+
+.fieldset legend {
+    padding-inline: var(--space-2);
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 600;
+}
+
+.field-row {
+    display: grid;
+    gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+    .field-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.field {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+}
+
+.field label {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.field input,
+.field select {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.6rem 0.9rem;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-s);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.field input:hover,
+.field select:hover {
+    border-color: #44444f;
+}
+
+.field input:focus-visible,
+.field select:focus-visible {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgb(212 175 55 / 0.28);
+}
+
+.field select {
+    appearance: none;
+    padding-inline-end: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23b5b1a8' stroke-width='1.6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+}
+
+[dir='rtl'] .field select {
+    background-position: left 0.9rem center;
+}
+
+.field.is-invalid input,
+.field.is-invalid select {
+    border-color: var(--color-danger);
+}
+
+.field__hint {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.field__error {
+    color: var(--color-danger);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Honeypot */
+.hp {
+    position: absolute;
+    inset-inline-start: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* Ticket steppers */
+.ticket-rows {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.ticket-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-s);
+}
+
+.ticket-row__label {
+    display: grid;
+    line-height: 1.5;
+}
+
+.ticket-row__label small {
+    color: var(--color-text-muted);
+}
+
+.stepper {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.stepper button {
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: 0;
+    color: var(--color-accent);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.stepper button:hover:not(:disabled) {
+    background: rgb(212 175 55 / 0.14);
+}
+
+.stepper button:disabled {
+    color: var(--color-border);
+    cursor: not-allowed;
+}
+
+.field .stepper input,
+.stepper input {
+    width: 3rem;
+    min-height: 44px;
+    padding: 0;
+    text-align: center;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.stepper input::-webkit-inner-spin-button,
+.stepper input::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+}
+
+.fieldset.is-invalid {
+    border-color: var(--color-danger);
+}
+
+/* Summary */
+.booking__summary {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-m);
+}
+
+.booking__summary h3 {
+    font-size: 1.5rem;
+}
+
+.summary-lines {
+    display: grid;
+    gap: var(--space-2);
+    list-style: none;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}
+
+.summary-lines li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-block-start: var(--space-4);
+    border-block-start: 1px solid var(--color-border);
+    font-size: 1.1rem;
+}
+
+.summary-total strong {
+    color: var(--color-accent);
+    font-size: 1.5rem;
+}
+
+.form-status {
+    padding: var(--space-3) var(--space-4);
+    background: rgb(255 143 132 / 0.1);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-s);
+    color: var(--color-danger);
+    font-size: 0.95rem;
+}
+
+/* Booking confirmation */
+.booking-success {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+    max-width: 560px;
+    padding: var(--space-6);
+    background: var(--color-surface);
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius-m);
+}
+
+.booking-success h3 {
+    color: var(--color-success);
+    font-size: var(--fs-h3);
+}
+
+.success-details {
+    display: grid;
+    gap: var(--space-2);
+    width: 100%;
+}
+
+.success-details div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block-end: var(--space-2);
+    border-block-end: 1px solid var(--color-border);
+}
+
+.success-details dt {
+    color: var(--color-text-muted);
+}
+
+.success-details dd {
+    font-weight: 500;
+    text-align: end;
+}
+
+/* ----- Footer ----- */
+.site-footer {
+    padding-block: var(--space-6);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+/* ----- Dialogs (native <dialog>) ----- */
+.modal {
+    /* the global reset removes the UA's margin:auto, which is what centres a dialog */
+    margin: auto;
+    width: min(940px, calc(100% - 2rem));
+    max-height: min(90svh, 800px);
+    padding: 0;
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-l);
+    overflow: hidden;
+    box-shadow: 0 40px 90px -30px rgb(0 0 0 / 0.9);
+}
+
+.modal--artifact {
+    border-color: var(--color-gold-hairline);
+}
+
+.modal[open] {
+    animation: modal-in 0.35s var(--ease);
+}
+
+.modal::backdrop {
+    background: rgb(5 5 7 / 0.74);
+    backdrop-filter: blur(6px);
+}
+
+.modal[open]::backdrop {
+    animation: fade 0.3s ease;
+}
+
+@keyframes modal-in {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.modal__close {
+    position: absolute;
+    inset-block-start: var(--space-3);
+    inset-inline-end: var(--space-3);
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    background: rgb(14 14 16 / 0.72);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, transform 0.25s var(--ease);
+}
+
+.modal__close:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    transform: rotate(90deg);
+}
+
+.modal__inner {
+    display: grid;
+    max-height: min(90svh, 800px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.modal__media {
+    position: relative;
+    min-height: 220px;
+    overflow: hidden;
+    background: var(--color-surface-2);
+}
+
+.modal__media img {
+    width: 100%;
+    height: 100%;
+    max-height: 320px;
+    object-fit: cover;
+}
+
+/* The picture is a button: click it for the magnifier */
+.zoom-trigger {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: zoom-in;
+}
+
+.zoom-trigger:focus-visible {
+    outline-offset: -4px;
+}
+
+.zoom-trigger img {
+    transition: transform 0.8s var(--ease);
+}
+
+.zoom-trigger:hover img {
+    transform: scale(1.03);
+}
+
+.zoom-trigger__icon {
+    position: absolute;
+    inset-block-end: var(--space-3);
+    inset-inline-start: var(--space-3);
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    background: rgb(14 14 16 / 0.72);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    color: var(--color-text);
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.zoom-trigger:hover .zoom-trigger__icon {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.modal__body {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    padding: var(--space-6) var(--space-5);
+}
+
+.modal__hall {
+    color: var(--color-accent);
+    font-weight: 500;
+}
+
+.modal__title {
+    font-size: var(--fs-h2);
+    line-height: 1.25;
+}
+
+.modal__desc {
+    color: var(--color-text-muted);
+}
+
+.modal__subtitle {
+    font-size: 1.4rem;
+}
+
+.meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+    padding-block: var(--space-3);
+    border-block: 1px solid var(--color-border);
+}
+
+.meta dt {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+
+.meta dd {
+    font-weight: 500;
+}
+
+/* Artifact specifications */
+.specs {
+    display: grid;
+    border-block-start: 1px solid var(--color-border);
+}
+
+.specs div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block: var(--space-2);
+    border-block-end: 1px solid var(--color-border);
+}
+
+.specs dt {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.specs dd {
+    font-weight: 500;
+    text-align: end;
+}
+
+.check-list {
+    display: grid;
+    gap: var(--space-2);
+    list-style: none;
+}
+
+.check-list li {
+    position: relative;
+    padding-inline-start: 1.6rem;
+}
+
+.check-list li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0.7em;
+    width: 0.7rem;
+    height: 2px;
+    background: var(--color-accent);
+}
+
+.modal__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-block-start: var(--space-3);
+}
+
+.modal__pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid var(--color-border);
+}
+
+.modal__count {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+@media (min-width: 780px) {
+    .modal__inner {
+        grid-template-columns: 5fr 6fr;
+    }
+
+    .modal__media img {
+        max-height: none;
+        min-height: 100%;
+    }
+
+    .modal__body {
+        padding: var(--space-7) var(--space-6);
+    }
+}
+
+/* ----- Lightbox (zoom / pan) ----- */
+.lightbox {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    background: rgb(5 5 7 / 0.96);
+    color: var(--color-text);
+    border: 0;
+    overflow: hidden;
+}
+
+.lightbox[open] {
+    animation: fade 0.3s ease;
+}
+
+.lightbox__stage {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    touch-action: none;
+    cursor: zoom-in;
+}
+
+.lightbox__stage.is-zoomed {
+    cursor: grab;
+}
+
+.lightbox__stage.is-dragging {
+    cursor: grabbing;
+}
+
+.lightbox__stage img {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transform-origin: center;
+    user-select: none;
+    -webkit-user-drag: none;
+    will-change: transform;
+}
+
+.lightbox__stage img.is-animating {
+    transition: transform 0.28s var(--ease);
+}
+
+.lightbox__caption {
+    position: absolute;
+    inset-block-start: var(--space-4);
+    inset-inline: var(--space-5) 4.5rem;
+    z-index: 4;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-shadow: 0 1px 12px rgb(0 0 0 / 0.9);
+    pointer-events: none;
+}
+
+.lightbox__toolbar {
+    position: absolute;
+    inset-block-end: var(--space-5);
+    inset-inline: 0;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    margin-inline: auto;
+    background: rgb(14 14 16 / 0.78);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+}
+
+.lightbox__toolbar button {
+    min-width: 48px;
+    height: 48px;
+    padding-inline: var(--space-3);
+    background: none;
+    border: 0;
+    border-radius: 999px;
+    color: var(--color-accent);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.lightbox__toolbar button:hover:not(:disabled) {
+    background: rgb(212 175 55 / 0.14);
+}
+
+.lightbox__toolbar button:disabled {
+    color: var(--color-border);
+    cursor: not-allowed;
+}
+
+.lightbox__toolbar .lightbox__reset {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.lightbox__toolbar output {
+    min-width: 4rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.95rem;
+}
+
+/* ---------- 5. Motion & accessibility safety nets ---------- */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        animation-delay: 0s !important;
+        transition-duration: 0.01ms !important;
+        transition-delay: 0s !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+@media (forced-colors: active) {
+
+    .btn,
+    .card,
+    .fieldset {
+        border: 1px solid CanvasText;
+    }
+}
+
+/* تجنب جعل opacity: 0 كـ default إذا لم يتم التأكد من دعم المتصفح */
+@supports not (animation-timeline: view()) {
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* --- تنسيقات المعارض الحالية (بدون بوكس، صورة وكتابة فقط) --- */
+.exhibitions-section {
+    background-color: #000000;
+    padding: 80px 0;
+    direction: rtl;
+    color: #fff;
+}
+
+.exhibitions-section .section__head {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.exhibitions-section .section__title {
+    font-size: 2rem;
+    color: #f39c12;
+    margin-bottom: 10px;
+}
+
+.exhibitions-section .section__intro {
+    color: #aaa;
+    font-size: 1rem;
+}
+
+/* حاوية الصفوف بدون أي خلفية أو حدود */
+.exhibitions__list {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* تصميم كل صف (صورة + نص بجانبها بدون بوكس) */
+.exhibition__row {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    /* مسافة نظيفة بين الصورة والنص */
+    background: transparent;
+    /* إزالة الخلفية */
+    border: none;
+    /* إزالة الحدود */
+    border-radius: 0;
+    box-shadow: none;
+    /* إزالة الظل الخارجي */
+}
+
+/* لعمل عكس مكان الصورة والنصوص بالتناوب */
+.exhibition__row.reverse {
+    flex-direction: row-reverse;
+}
+
+/* تنسيق رابط وصورة القاعة */
+.exhibition__image-link {
+    flex: 1;
+    height: 300px;
+    overflow: hidden;
+    display: block;
+    border-radius: 12px;
+    /* حواف دائرية للصورة وحدها */
+    border: 1px solid #333;
+}
+
+.exhibition__image-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.exhibition__image-link:hover img {
+    transform: scale(1.05);
+}
+
+/* تنسيق النصوص في الجهة المقابلة */
+.exhibition__content {
+    flex: 1;
+    padding: 0;
+    text-align: right;
+    background: transparent;
+}
+
+.exhibition__content h3 {
+    font-size: 1.6rem;
+    color: #f39c12;
+    margin-bottom: 15px;
+}
+
+.exhibition__content p {
+    color: #bbb;
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+/* زر دخول القاعة */
+.exhibition__btn {
+    display: inline-block;
+    padding: 10px 22px;
+    background: transparent;
+    color: #f39c12;
+    border: 1px solid #f39c12;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.exhibition__btn:hover {
+    background: #f39c12;
+    color: #000;
+}
+
+/* الاستجابة للشاشات الصغيرة (الهواتف) */
+@media (max-width: 768px) {
+
+    .exhibition__row,
+    .exhibition__row.reverse {
+        flex-direction: column !important;
+        gap: 20px;
+    }
+
+    .exhibition__image-link {
+        width: 100%;
+        height: 240px;
+    }
+}
+
+/* تأثير تغير لون الدوائر وتوهجها عند تمرير الماوس على المربع */
+.timeline-item a:hover~div,
+/* عندما تمرر الماوس على أي جزء من الستريت (Timeline Item)، تتفاعل الدائرة تلقائياً */
+.timeline-item:hover div[style*="border-radius: 50%"] {
+    background-color: #fff !important;
+    color: #000 !important;
+    transform: scale(1.12);
+    box-shadow: 0 0 18px #f39c12 !important;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.timeline-item a:hover+div {
+    /* يمكنك التحكم باللون الجديد للدوائر هنا عند الهوفر */
+}
+
+/* الطريقة الأبسط والأضمن لتفعيل التأثير على الدائرة المرتبطة بالرابط */
+.timeline-item:hover .timeline-number,
+.timeline-item a:hover~.timeline-number {
+    background-color: #fff !important;
+    /* لون خلفية الدائرة عند المرور (مثلاً أبيض أو ذهبي فاتح) */
+    color: #000 !important;
+    /* لون الرقم بداخله */
+    box-shadow: 0 0 15px #f39c12 !important;
+    /* توهج قوي للدائرة */
+    transform: scale(1.1);
+    /* تكبير بسيط للدائرة */
+    transition: all 0.3s ease;
+}
+
+/* --- تنسيق بطاقات الكنوز --- */
+.treasure-card {
+    background: #141414;
+    border: 1px solid #2d2d2d;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 340px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.treasure-card:hover {
+    transform: translateY(-6px);
+    border-color: #f39c12;
+    box-shadow: 0 12px 25px rgba(243, 156, 18, 0.2);
+}
+
+.treasure-img-box {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: #000;
+}
+
+.treasure-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.treasure-card:hover .treasure-img-box img {
+    transform: scale(1.08);
+}
+
+.treasure-info {
+    padding: 15px;
+    text-align: right;
+    direction: rtl;
+    background: #141414;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.treasure-info h3 {
+    margin: 0 0 6px 0;
+    font-size: 1.1rem;
+    color: #f39c12;
+}
+
+.treasure-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+/* --- النافذة المنبثقة لتفاصيل الكنز (Modal Lightbox) --- */
+.treasure-modal {
+    display: none;
+    position: fixed;
+    z-index: 3000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(8px);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.treasure-modal.active {
+    display: flex;
+}
+
+/* --- تكبير نافذة تفاصيل الكنز (Modal) --- */
+.treasure-modal-content {
+    background: #181818;
+    border: 1px solid #333;
+    border-radius: 16px;
+    max-width: 1100px;
+    /* تم زيادة العرض الأقصى للنافذة */
+    width: 90%;
+    /* نسبة العرض من الشاشة */
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    /* توسيع مساحة الصورة */
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+    direction: rtl;
+    min-height: 500px;
+    /* زيادة الارتفاع الأدنى للنافذة */
+}
+
+/* تكبير حاوية الصورة داخل النافذة */
+.treasure-modal-img-box {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 600px;
+    /* تم زيادة ارتفاع الصورة */
+    width: 100%;
+}
+
+.treasure-modal-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* إظهار الصورة بالكامل بدون قص */
+    display: block;
+}
+
+/* تكبير نصوص وتفاصيل النافذة */
+.treasure-modal-body {
+    padding: 40px 30px;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.treasure-modal-body h2 {
+    color: #f39c12;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 2.2rem;
+    /* تكبير عنوان الكنز */
+}
+
+.treasure-modal-meta p {
+    color: #aaa;
+    margin: 8px 0;
+    font-size: 1.05rem;
+    /* تكبير حجم الخط للتفاصيل */
+}
+
+.treasure-modal-desc {
+    color: #ddd;
+    line-height: 1.8;
+    font-size: 1.1rem;
+    /* تكبير خط الوصف الشارح */
+    margin-top: 15px;
+}
+
+.treasure-close-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: 0.2s;
+    z-index: 10;
+}
+
+.treasure-close-btn:hover {
+    background: #f39c12;
+    color: #000;
+}
+
+@media (max-width: 768px) {
+    .treasure-modal-content {
+        grid-template-columns: 1fr;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+}
+
+.treasure-img-box img,
+.art-card img {
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.treasure-card:hover .treasure-img-box img {
+    transform: scale(1.08);
+    /* تكبير خفيف وأنيق */
+}
+
+.btn,
+.treasure-card,
+.timeline-item a div {
+    transition: all 0.3s ease-in-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero__title {
+    animation: fadeInDown 1.2s ease-out forwards;
+}
+
+/* ==========================================
+   1. أنيميشن نبض وتوهج الزر الرئيسي (Pulse Glow)
+   ========================================== */
+@keyframes goldGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 12px rgba(243, 156, 18, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(243, 156, 18, 0);
+    }
+}
+
+/* تطبيق التوهج على زر تصفح المعارض */
+.hero__actions .btn {
+    animation: goldGlow 2.5s infinite;
+    transition: all 0.3s ease;
+}
+
+/* ==========================================
+   2. تأثير الظهور التدريجي عند التمرير (Scroll Reveal)
+   ========================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    will-change: opacity, transform;
+}
+
+/* الحالة النشطة عند الوصول للعنصر */
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-8px);
+        /* حركة للأعلى بمقدار 8 بكسل */
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* تطبيق الأنيميشن على عنوان الواجهة الرئيسية أو الأيقونات البارزة */
+.hero__title {
+    animation: float 4s ease-in-out infinite;
+}
+
+.art-card,
+.table-responsive {
+    position: relative;
+    overflow: hidden;
+}
+
+/* تأثير لمعان الضوء الذهبي المنساب */
+.art-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(243, 156, 18, 0.08) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    transform: rotate(30deg) translateY(-100%);
+    transition: transform 0.7s ease-in-out;
+    pointer-events: none;
+}
+
+.art-card:hover::after {
+    transform: rotate(30deg) translateY(100%);
+}
+
+/* تأثير التوهج الذهبي حول الإطار عند الوقوف عليه */
+.art-card,
+.table-responsive {
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.art-card:hover,
+.table-responsive:hover {
+    border-color: #f39c12 !important;
+    box-shadow: 0 0 20px rgba(243, 156, 18, 0.25),
+        inset 0 0 15px rgba(243, 156, 18, 0.1);
+}
+
+/* أنيميشن تكبير الصورة بداخل المودال عند الفتح */
+.modal-image-container img {
+    animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.hall-header h1 {
+    color: #f39c12;
+    text-shadow: 0 2px 8px rgba(243, 156, 18, 0.5);
+}
+
+.hero__title {
+    background: linear-gradient(90deg, #ffffff, #f39c12, #ffffff);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shineText 5s linear infinite;
+}
+
+@keyframes shineText {
+    0% {
+        background-position: 0% center;
+    }
+
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes softPulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.04);
+        box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.back-btn {
+    animation: softPulse 3s infinite ease-in-out;
+}
+
+.hall-header h1::before,
+.hall-header h1::after {
+    transition: transform 0.5s ease;
+}
+
+.art-card:hover {
+    transform: translateY(-10px) rotateX(2deg) rotateY(-2deg);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+tr {
+    opacity: 0;
+    transform: translateY(15px);
+    animation: rowAppear 0.5s ease forwards;
+}
+
+@keyframes rowAppear {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* تطبيق تأخير زمني تدريجي لكل صف على حدة */
+tr:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+tr:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+tr:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+tr:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+tr:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+tr:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+tr:nth-child(7) {
+    animation-delay: 0.7s;
+}
+
+tr:nth-child(8) {
+    animation-delay: 0.8s;
+}
+
+tr:nth-child(9) {
+    animation-delay: 0.9s;
+}
+
+tr:nth-child(10) {
+    animation-delay: 1s;
+}
+
+@keyframes goldShadowMove {
+    0% {
+        box-shadow: 0 5px 15px rgba(243, 156, 18, 0.1);
+    }
+
+    50% {
+        box-shadow: 0 8px 25px rgba(243, 156, 18, 0.3);
+    }
+
+    100% {
+        box-shadow: 0 5px 15px rgba(243, 156, 18, 0.1);
+    }
+}
+
+.art-card:hover {
+    animation: goldShadowMove 2s infinite ease-in-out;
+}
+
+/* الحركة أثناء ظهور المودال */
+.modal.active .modal-content {
+    animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.back-btn:hover span,
+.navbar a:hover {
+    display: inline-block;
+    animation: pulseIcon 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulseIcon {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-4px);
+        /* إزاحة خفيفة نحو السهم */
+    }
+}
+
+/* تأخير زمني متدرج للبطاقات عند ظهورها */
+.gallery-grid .art-card:nth-child(1) {
+    transition-delay: 0.1s;
+}
+
+.gallery-grid .art-card:nth-child(2) {
+    transition-delay: 0.2s;
+}
+
+.gallery-grid .art-card:nth-child(3) {
+    transition-delay: 0.3s;
+}
+
+.gallery-grid .art-card:nth-child(4) {
+    transition-delay: 0.4s;
+}
+
+.gallery-grid .art-card:nth-child(5) {
+    transition-delay: 0.5s;
+}
+
+.gallery-grid .art-card:nth-child(6) {
+    transition-delay: 0.6s;
+}
+
+.gallery-grid .art-card:nth-child(7) {
+    transition-delay: 0.7s;
+}
+
+.gallery-grid .art-card:nth-child(8) {
+    transition-delay: 0.8s;
+}
+
+.gallery-grid .art-card:nth-child(9) {
+    transition-delay: 0.9s;
+}
+
+.gallery-grid .art-card:nth-child(10) {
+    transition-delay: 1s;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    transition: all 0.4s ease-in-out;
+}
+
+/* الكلاس الذي سينشط عند التمرير لأسفل */
+.navbar.scrolled {
+    background: rgba(11, 11, 11, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(243, 156, 18, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    padding: 12px 0;
+}
+
+/* تأثير العمق الثلاثي الأبعاد عند التمرير على البطاقة */
+.art-image-box {
+    perspective: 1000px;
+    overflow: hidden;
+}
+
+.art-image-box img {
+    transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.3, 1), filter 0.5s ease;
+}
+
+.art-card:hover .art-image-box img {
+    transform: scale(1.1) rotate(1deg);
+    /* تكبير خفيف مع ميلان أنيق */
+    filter: brightness(1.1) contrast(1.05);
+    /* زيادة طفيفة في الإضاءة والتباين */
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+
+
+@keyframes blink {
+
+    from,
+    to {
+        border-color: transparent;
+    }
+
+    50% {
+        border-color: #f39c12;
+    }
+}
+
+.btn-detail {
+    transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.btn-detail:hover {
+    transform: translateY(-3px) scale(1.03) !important;
+    background: #f39c12 !important;
+    color: #000 !important;
+    box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4) !important;
+}
+
+/* أنيميشن تكبير الصورة بداخل المودال عند الفتح */
+.modal-image-container img {
+    animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* تأثير التوهج الذهبي حول الإطار عند الوقوف عليه */
+.art-card,
+.table-responsive {
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.art-card:hover,
+.table-responsive:hover {
+    border-color: #f39c12 !important;
+    box-shadow: 0 0 20px rgba(243, 156, 18, 0.25),
+        inset 0 0 15px rgba(243, 156, 18, 0.1);
+}
+
+.art-card,
+.table-responsive {
+    position: relative;
+    overflow: hidden;
+}
+
+/* تأثير لمعان الضوء الذهبي المنساب */
+.art-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(243, 156, 18, 0.08) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    transform: rotate(30deg) translateY(-100%);
+    transition: transform 0.7s ease-in-out;
+    pointer-events: none;
+}
+
+.art-card:hover::after {
+    transform: rotate(30deg) translateY(100%);
+}
+
+/* تأثير انميشن فتح النافذة المنبثقة بشكل سينمائي */
+#archiveModal[style*="display: flex"]>div,
+#archiveModal[style*="display:flex"]>div {
+    animation: modalScaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalScaleUp {
+    0% {
+        opacity: 0;
+        transform: scale(0.85) translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes tableBtnGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.3);
+    }
+
+    70% {
+        box-shadow: 0 0 0 8px rgba(243, 156, 18, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(243, 156, 18, 0);
+    }
+}
+
+.btn-detail {
+    animation: tableBtnGlow 3s infinite;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-detail:hover {
+    transform: scale(1.05);
+    background: #f39c12 !important;
+    color: #000 !important;
+}
+
+.archive-table img {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+    border-radius: 6px;
+}
+
+.archive-table img:hover {
+    transform: scale(1.15) rotate(2deg);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    position: relative;
+    z-index: 5;
+}
+
+/* تخصيص حركة ظهور صفوف الجدول */
+.archive-table tbody tr {
+    opacity: 0;
+    transform: translateX(20px);
+    animation: tableSlideIn 0.6s ease forwards;
+}
+
+@keyframes tableSlideIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* تأخير زمني تدريجي لكل صف على حدة ليعطي مظهراً متسلسلاً */
+.archive-table tbody tr:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.archive-table tbody tr:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.archive-table tbody tr:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.archive-table tbody tr:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.archive-table tbody tr:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.archive-table tbody tr:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.archive-table tbody tr:nth-child(7) {
+    animation-delay: 0.7s;
+}
+
+.archive-table tbody tr:nth-child(8) {
+    animation-delay: 0.8s;
+}
+
+/* =================================================وقت الحركات السينمائية الشاملة ================================================= */
+
+/* 1. تأثير الهالة الذهبية المتوهجة المتحركة للأزرار الرئيسية */
+@keyframes goldPulseGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 15px rgba(243, 156, 18, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(243, 156, 18, 0);
+    }
+}
+
+.hero__btn,
+.btn-primary {
+    animation: goldPulseGlow 2.5s infinite ease-in-out;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero__btn:hover,
+.btn-primary:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 10px 25px rgba(243, 156, 18, 0.5);
+}
+
+/* 2. أنيميشن الطفو والانزلاق البطيء للبطاقات الفنية (Art Cards) */
+@keyframes cardFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-6px) rotate(0.5deg);
+    }
+}
+
+.art-card,
+.hall-card {
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s ease;
+}
+
+.art-card:hover,
+.hall-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(243, 156, 18, 0.2);
+}
+
+/* 3. تأثير انسياب الضوء المتحرك (Shimmer Effect) على العناوين واللوحات */
+@keyframes titleShimmer {
+    0% {
+        background-position: -200% center;
+    }
+
+    100% {
+        background-position: 200% center;
+    }
+}
+
+.hall-header h1,
+.section-title,
+.hero__title {
+    background: linear-gradient(90deg, #ffffff 0%, #f39c12 50%, #ffffff 100%);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: titleShimmer 6s linear infinite;
+}
+
+/* 4. تأثير ظهور صفوف جدول السجل الشامل بشكل متسلسل وتدريجي (Staggered Fade & Slide) */
+@keyframes rowRevealSmooth {
+    0% {
+        opacity: 0;
+        transform: translateY(25px) scale(0.98);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.archive-table tbody tr {
+    opacity: 0;
+    animation: rowRevealSmooth 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* تأخير زمني دقيق لكل صف لتظهر بشكل هرمي متتابع */
+.archive-table tbody tr:nth-child(1) {
+    animation-delay: 0.08s;
+}
+
+.archive-table tbody tr:nth-child(2) {
+    animation-delay: 0.16s;
+}
+
+.archive-table tbody tr:nth-child(3) {
+    animation-delay: 0.24s;
+}
+
+.archive-table tbody tr:nth-child(4) {
+    animation-delay: 0.32s;
+}
+
+.archive-table tbody tr:nth-child(5) {
+    animation-delay: 0.40s;
+}
+
+.archive-table tbody tr:nth-child(6) {
+    animation-delay: 0.48s;
+}
+
+.archive-table tbody tr:nth-child(7) {
+    animation-delay: 0.56s;
+}
+
+.archive-table tbody tr:nth-child(8) {
+    animation-delay: 0.64s;
+}
+
+.archive-table tbody tr:nth-child(9) {
+    animation-delay: 0.72s;
+}
+
+.archive-table tbody tr:nth-child(10) {
+    animation-delay: 0.80s;
+}
+
+/* تفاعل مميز عند المرور على صفوف الجدول */
+.archive-table tbody tr {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.archive-table tbody tr:hover {
+    background-color: rgba(243, 156, 18, 0.07) !important;
+    transform: scale(1.005);
+}
+
+/* 5. أنيميشن فتح نافذة المودال (Modal Cinematic Zoom & Pop) */
+@keyframes modalCinematicEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(0.7) translateY(40px);
+        filter: blur(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+    }
+}
+
+#archiveModal[style*="display: flex"]>div,
+#archiveModal[style*="display:flex"]>div {
+    animation: modalCinematicEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 6. تأثير إضاءة الحدود المتحركة (Border Neon Flow) للصور والمحتويات الكبرى */
+@keyframes borderGlowPulse {
+
+    0%,
+    100% {
+        border-color: rgba(243, 156, 18, 0.2);
+    }
+
+    50% {
+        border-color: rgba(243, 156, 18, 0.8);
+    }
+}
+
+.archive-table img,
+.modal-dialog-box {
+    animation: borderGlowPulse 4s infinite ease-in-out;
+}
+
+/* 7. تأثير التموج الخفيف لأيقونات الأزرار والتفاصيل */
+@keyframes iconBounceSubtle {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(-4px);
+    }
+}
+
+.btn-detail:hover i,
+.btn-detail:hover span {
+    animation: iconBounceSubtle 0.6s infinite ease-in-out;
+}
+
+/* 8. تأثير تدرج الخلفية العام لإعطاء شعور بالحياة والعمق البصري للمتحف */
+@keyframes backgroundAtmosphere {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+/* 9. تأثير التمرير الانسيابي الناعم وتخصيص شريط التمرير (Scrollbar) بلون ذهبي فخم */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f0f0f;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #332611;
+    border-radius: 4px;
+    border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #f39c12;
+}
+
+/* ==========================================================================
+   حزمة الأنيميشن السينمائية الفاخرة المتقدمة (المتحف الشامل)
+   ========================================================================== */
+
+/* 1. تأثير المنظور الثلاثي الأبعاد المتقدم (3D Tilt & Glow) لبطاقات الكنوز والمعروضات */
+.art-card,
+.hall-card,
+.carousel__item {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s ease;
+}
+
+.art-card:hover,
+.hall-card:hover {
+    transform: translateY(-15px) rotateX(4deg) rotateY(-4deg) scale(1.02);
+    box-shadow:
+        -20px 20px 40px rgba(0, 0, 0, 0.9),
+        0 0 35px rgba(243, 156, 18, 0.35),
+        inset 0 0 15px rgba(243, 156, 18, 0.2);
+}
+
+/* 2. تأثير موجة الضوء المتسلسلة (Shimmer Wave) على العناوين الكبرى */
+@keyframes goldWaveFlow {
+    0% {
+        background-position: -300% 50%;
+    }
+
+    100% {
+        background-position: 300% 50%;
+    }
+}
+
+h1,
+h2,
+.hall-title,
+.section-header h2 {
+    background: linear-gradient(120deg, #d4af37 0%, #fff7cc 25%, #f39c12 50%, #fff7cc 75%, #d4af37 100%);
+    background-size: 300% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: goldWaveFlow 7s ease-in-out infinite;
+}
+
+/* 3. أنيميشن نبض الإطار الخارجي الفاخر لنافذة المودال والبطاقات النشطة */
+@keyframes activeBorderPulse {
+    0% {
+        border-color: rgba(243, 156, 18, 0.3);
+        box-shadow: 0 0 15px rgba(243, 156, 18, 0.1), inset 0 0 10px rgba(243, 156, 18, 0.05);
+    }
+
+    50% {
+        border-color: rgba(243, 156, 18, 0.9);
+        box-shadow: 0 0 35px rgba(243, 156, 18, 0.4), inset 0 0 20px rgba(243, 156, 18, 0.2);
+    }
+
+    100% {
+        border-color: rgba(243, 156, 18, 0.3);
+        box-shadow: 0 0 15px rgba(243, 156, 18, 0.1), inset 0 0 10px rgba(243, 156, 18, 0.05);
+    }
+}
+
+#archiveModal>div,
+.modal-content-box {
+    animation: activeBorderPulse 4s infinite ease-in-out;
+}
+
+/* 4. تأثير الطفو والتذبذب البطيء (Floating Levitation) للعناصر الزخرفية والأيقونات */
+@keyframes absoluteLevitation {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(1deg);
+    }
+}
+
+.floating-icon,
+.museum-badge,
+.hero-emblem {
+    animation: absoluteLevitation 5s ease-in-out infinite;
+}
+
+/* 5. أنيميشن الدخول السينمائي المتدرج لصفوف جداول الأرشيف والسجل الشامل */
+@keyframes cinematicTableFade {
+    0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+        filter: blur(4px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+.archive-table tr {
+    opacity: 0;
+    animation: cinematicTableFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* تأخير هرمي دقيق لغاية 15 صفاً لضمان الانسيابية التامة */
+.archive-table tr:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.archive-table tr:nth-child(2) {
+    animation-delay: 0.10s;
+}
+
+.archive-table tr:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.archive-table tr:nth-child(4) {
+    animation-delay: 0.20s;
+}
+
+.archive-table tr:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.archive-table tr:nth-child(6) {
+    animation-delay: 0.30s;
+}
+
+.archive-table tr:nth-child(7) {
+    animation-delay: 0.35s;
+}
+
+.archive-table tr:nth-child(8) {
+    animation-delay: 0.40s;
+}
+
+.archive-table tr:nth-child(9) {
+    animation-delay: 0.45s;
+}
+
+.archive-table tr:nth-child(10) {
+    animation-delay: 0.50s;
+}
+
+.archive-table tr:nth-child(11) {
+    animation-delay: 0.55s;
+}
+
+.archive-table tr:nth-child(12) {
+    animation-delay: 0.60s;
+}
+
+/* 6. تفاعل إضاءة الخلفية عند المرور على صفوف الجدول (Row Spotlight Hover) */
+.archive-table tr {
+    transition: background 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.archive-table tr:hover {
+    background: linear-gradient(90deg, rgba(243, 156, 18, 0.03), rgba(243, 156, 18, 0.12), rgba(243, 156, 18, 0.03)) !important;
+    transform: scale(1.008) translateX(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+    z-index: 10;
+    position: relative;
+}
+
+/* 7. أنيميشن التوهج الدائري المستمر للأزرار الرئيسية والتفاعلية (Radar Pulse) */
+@keyframes radarGoldPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.5);
+    }
+
+    70% {
+        box-shadow: 0 0 0 20px rgba(243, 156, 18, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(243, 156, 18, 0);
+    }
+}
+
+.btn-primary,
+.hero-cta,
+.carousel-control {
+    animation: radarGoldPulse 3s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.btn-primary:hover,
+.hero-cta:hover {
+    animation: none;
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 12px 30px rgba(243, 156, 18, 0.6);
+}
+
+/* 8. تأثير النبض البصري الناعم للصور المصغرة داخل المعرض والأرشيف */
+@keyframes imageSubtleBreath {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.03);
+    }
+}
+
+.archive-table img,
+.gallery-thumb {
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.5s ease;
+}
+
+.archive-table img:hover,
+.gallery-thumb:hover {
+    transform: scale(1.18) rotate(1.5deg);
+    filter: contrast(1.15) brightness(1.1);
+    box-shadow: 0 10px 25px rgba(243, 156, 18, 0.5);
+}
+
+/* 9. تأثير الانتقال والتلاشي التدريجي الخلفي عند التمرير (Scroll Reveal Blur FX) */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1), filter 1s ease;
+    filter: blur(5px);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+}
+
+/* 10. أنيميشن فتح وغلق نافذة المودال بذكاء وعمق سينمائي (Modal Quantum Zoom) */
+@keyframes quantumModalOpen {
+    0% {
+        opacity: 0;
+        transform: scale(0.6) rotateX(10deg);
+        filter: blur(12px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) rotateX(0deg);
+        filter: blur(0);
+    }
+}
+
+#archiveModal[style*="display: flex"]>div,
+#archiveModal[style*="display:flex"]>div {
+    animation: quantumModalOpen 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 11. تأثير حركة خط الإضاءة الديناميكي على أزرار التفاصيل (Border Beam Effect) */
+@keyframes borderBeamAnim {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.btn-detail {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-detail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(243, 156, 18, 0.4), transparent);
+    background-size: 200% 100%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.btn-detail:hover::before {
+    opacity: 1;
+    animation: borderBeamAnim 2s linear infinite;
+}
+
+.btn-detail:hover {
+    color: #000 !important;
+    background-color: #f39c12 !important;
+    border-color: #f39c12 !important;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+}
+
+/* 12. تخصيص شريط التمرير (Scrollbar) بتدرج ذهبي فاخر متوهج */
+::-webkit-scrollbar {
+    width: 9px;
+}
+
+::-webkit-scrollbar-track {
+    background: #080808;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #3a2e16, #f39c12, #3a2e16);
+    border-radius: 5px;
+    border: 2px solid #080808;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #f39c12, #ffcc00, #f39c12);
+    box-shadow: 0 0 10px rgba(243, 156, 18, 0.8);
+}
+
+/* ==========================================================================
+   عالم الخيال العلمي والتأثيرات الطيفية الرقمية (Sci-Fi Cyber-Museum FX)
+   ========================================================================== */
+
+/* 1. تأثير الهالة الليزرية المتحركة على حدود النافذة المنبثقة (Cyber Hologram Border) */
+@keyframes cyberHologramBorder {
+    0% {
+        box-shadow: 0 0 20px rgba(243, 156, 18, 0.2), inset 0 0 15px rgba(243, 156, 18, 0.1), 0 0 50px rgba(0, 0, 0, 0.9);
+        border-color: #f39c12;
+    }
+
+    50% {
+        box-shadow: 0 0 40px rgb(0, 0, 0), inset 0 0 25px rgba(0, 206, 201, 0.2), 0 0 70px rgb(0, 0, 0);
+        border-color: #000000;
+    }
+
+    100% {
+        box-shadow: 0 0 20px rgba(243, 156, 18, 0.2), inset 0 0 15px rgba(243, 156, 18, 0.1), 0 0 50px rgba(0, 0, 0, 0.9);
+        border-color: #f39c12;
+    }
+}
+
+#archiveModal>div {
+    animation: cyberHologramBorder 6s infinite ease-in-out;
+}
+
+/* 2. تأثير الاهتزاز الطيفي الخفيف والمستمر للصور والمعروضات داخل الأرشيف */
+@keyframes spectralGlitch {
+
+    0%,
+    100% {
+        filter: brightness(1) contrast(1) drop-shadow(0 0 0px rgba(243, 156, 18, 0));
+    }
+
+    30% {
+        filter: brightness(1.05) contrast(1.1) drop-shadow(0 0 12px rgba(243, 156, 18, 0.4));
+    }
+
+    32% {
+        filter: brightness(1.2) contrast(1.3) drop-shadow(0 0 5px rgb(0, 0, 0));
+    }
+
+    34% {
+        filter: brightness(1) contrast(1) drop-shadow(0 0 0px rgba(243, 156, 18, 0));
+    }
+
+    70% {
+        filter: brightness(1.05) contrast(1.05) drop-shadow(0 0 8px rgba(243, 156, 18, 0.3));
+    }
+}
+
+#archImg {
+    animation: spectralGlitch 8s infinite ease-in-out;
+}
+
+/* 3. أنيميشن الانبثاق الكمومي الفضائي (Quantum Warp Entrance) للمودال عند الفتح */
+@keyframes quantumWarpOpen {
+    0% {
+        opacity: 0;
+        transform: scale(0.2) rotate(15deg) skewX(20deg);
+        filter: blur(20px) hue-rotate(90deg);
+    }
+
+    60% {
+        opacity: 0.8;
+        transform: scale(1.05) rotate(-2deg) skewX(-5deg);
+        filter: blur(2px) hue-rotate(45deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg) skewX(0deg);
+        filter: blur(0) hue-rotate(0deg);
+    }
+}
+
+#archiveModal[style*="display: flex"]>div,
+#archiveModal[style*="display:flex"]>div {
+    animation: quantumWarpOpen 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 4. تأثير النبض الكهرومغناطيسي لصفوف الجدول (Electro-Magnetic Table Rows) */
+@keyframes emRowPulse {
+
+    0%,
+    100% {
+        background-color: transparent;
+    }
+
+    50% {
+        background-color: rgba(243, 156, 18, 0.04);
+    }
+}
+
+/* 5. تأثير انيميشن نيون أزرار التفاصيل (Neon Cyber Button Pulse) */
+@keyframes cyberNeonPulse {
+    0% {
+        box-shadow: 0 0 5px rgba(243, 156, 18, 0.3), inset 0 0 5px rgba(243, 156, 18, 0.1);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(243, 156, 18, 0.8), inset 0 0 10px rgba(243, 156, 18, 0.4);
+    }
+
+    100% {
+        box-shadow: 0 0 5px rgba(243, 156, 18, 0.3), inset 0 0 5px rgba(243, 156, 18, 0.1);
+    }
+}
+
+.btn-detail {
+    animation: cyberNeonPulse 3s infinite ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 6. تأثير شعاع الليزر الماسح (Laser Beam Scan) عند المرور فوق أزرار التفاصيل */
+.btn-detail::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: rotate(45deg) translate(-100%, -100%);
+    transition: transform 0.7s ease;
+}
+
+.btn-detail:hover::after {
+    transform: rotate(45deg) translate(100%, 100%);
+}
+
+.btn-detail:hover {
+    transform: scale(1.08) translateY(-3px);
+    background-color: #f39c12 !important;
+    color: #000 !important;
+    box-shadow: 0 0 25px rgba(243, 156, 18, 0.9);
+}
+
+/* 7. تأثير الطفو المغناطيسي الثقيل (Magnetic Levitation) لبطاقات المعروضات */
+@keyframes magneticFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) rotateX(0) rotateY(0);
+    }
+
+    33% {
+        transform: translateY(-8px) rotateX(3deg) rotateY(-2deg);
+    }
+
+    66% {
+        transform: translateY(-4px) rotateX(-2deg) rotateY(3deg);
+    }
+}
+
+.art-card,
+.hall-card {
+    animation: magneticFloat 6s ease-in-out infinite;
+}
+
+.art-card:hover,
+.hall-card:hover {
+    animation: none;
+    transform: translateY(-15px) scale(1.03) rotateX(5deg) rotateY(-5deg);
+    box-shadow:
+        0 25px 50px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(243, 156, 18, 0.4),
+        0 0 80px rgba(0, 206, 201, 0.15);
+}
+
+
+/* 10. أنيميشن الظهور المتسلسل الخارق لصفوف الجدول بتقنية الـ Matrix Stream */
+@keyframes matrixRowStream {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scaleX(0.9);
+        filter: brightness(2) blur(5px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scaleX(1);
+        filter: brightness(1) blur(0);
+    }
+}
+
+.archive-table tr {
+    opacity: 0;
+    animation: matrixRowStream 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* توزيع زمني دقيق لكل صف ليتدفق كبيانات نظام مستقبلي */
+.archive-table tr:nth-child(1) {
+    animation-delay: 0.04s;
+}
+
+.archive-table tr:nth-child(2) {
+    animation-delay: 0.08s;
+}
+
+.archive-table tr:nth-child(3) {
+    animation-delay: 0.12s;
+}
+
+.archive-table tr:nth-child(4) {
+    animation-delay: 0.16s;
+}
+
+.archive-table tr:nth-child(5) {
+    animation-delay: 0.20s;
+}
+
+.archive-table tr:nth-child(6) {
+    animation-delay: 0.24s;
+}
+
+.archive-table tr:nth-child(7) {
+    animation-delay: 0.28s;
+}
+
+.archive-table tr:nth-child(8) {
+    animation-delay: 0.32s;
+}
+
+.archive-table tr:nth-child(9) {
+    animation-delay: 0.36s;
+}
+
+.archive-table tr:nth-child(10) {
+    animation-delay: 0.40s;
+}
+
+.archive-table tr:nth-child(11) {
+    animation-delay: 0.44s;
+}
+
+.archive-table tr:nth-child(12) {
+    animation-delay: 0.48s;
+}
+
+/* ==========================================================================
+   MOTION UPGRADE LAYER  (appended – no HTML / class / id changes required)
+   - transform / opacity / scale / rotate / translate only (compositor-friendly)
+   - spring easing via linear(); cubic-bezier fallback for older browsers
+   - JS gates: html.fx-aos is added only when the AOS library actually loaded
+   ========================================================================== */
+
+:root {
+    --fx-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
+    --fx-spring-soft: cubic-bezier(0.22, 1.2, 0.36, 1);
+    --fx-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --fx-gold: 212 175 55;
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+    :root {
+        --fx-spring: linear(0, 0.0335, 0.1201, 0.2404, 0.3781, 0.5197, 0.6554, 0.7779, 0.8828, 0.968, 1.0332, 1.0794, 1.1085, 1.1231, 1.1261, 1.1203, 1.1083, 1.0925, 1.0748, 1.057, 1.0402, 1.0251, 1.0124, 1.0021, 0.9944, 0.989, 0.9858, 0.9843, 1);
+        --fx-spring-soft: linear(0, 0.0181, 0.0653, 0.1325, 0.2121, 0.2982, 0.3862, 0.4726, 0.5547, 0.6308, 0.7, 0.7615, 0.8153, 0.8616, 0.9006, 0.9329, 0.9592, 0.98, 0.9962, 1.0083, 1.0169, 1.0228, 1.0263, 1.028, 1.0283, 1.0276, 1.0261, 1.0241, 1);
+    }
+}
+
+@property --rip-r {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+}
+
+@property --rip-o {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0;
+}
+
+/* Reduced-motion safety: the legacy .reveal rule hid content for these users forever */
+.reveal.is-visible,
+.reveal.active {
+    opacity: 1;
+    transform: none;
+}
+
+/* ---------- 1. Staggered scroll reveals (JS-built cards, via existing IntersectionObserver) ---------- */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .reveal {
+        opacity: 0;
+        transform: translate3d(0, 48px, 0) scale(0.95);
+        transition: opacity 0.7s ease, transform 1s var(--fx-spring-soft);
+        transition-delay: calc(var(--i, 0) * 90ms);
+        will-change: opacity, transform;
+    }
+
+    .reveal.is-visible,
+    .reveal.active {
+        opacity: 1;
+        transform: none;
+        will-change: auto;
+        /* release the GPU layer once settled */
+    }
+}
+
+/* AOS-driven blocks (exhibition rows, treasure cards, table, timeline) – same feel, spring easing.
+   Gated on html.fx-aos so nothing can get stuck if AOS fails to load (e.g. blocked by CSP). */
+@media (prefers-reduced-motion: no-preference) {
+    html.fx-aos [data-aos]:not(.aos-animate) {
+        will-change: opacity, transform;
+    }
+
+    html.fx-aos [data-aos="fade-up"]:not(.aos-animate) {
+        transform: translate3d(0, 56px, 0) scale(0.95);
+    }
+
+    html.fx-aos [data-aos="fade-right"]:not(.aos-animate) {
+        transform: translate3d(-48px, 0, 0) scale(0.97);
+    }
+
+    html.fx-aos [data-aos][data-aos][data-aos] {
+        transition-property: opacity, transform, translate, rotate, scale, border-color, box-shadow;
+        transition-duration: 0.8s, 1s, 0.5s, 0.7s, 0.7s, 0.3s, 0.4s;
+        transition-timing-function: ease, var(--fx-spring-soft), var(--fx-out), var(--fx-spring), var(--fx-spring), ease, ease;
+    }
+
+    /* Exhibition row: copy rises in after the image */
+    html.fx-aos .exhibition__row[data-aos] .exhibition__content>* {
+        opacity: 0;
+        translate: 0 26px;
+        transition: opacity 0.7s ease, translate 0.9s var(--fx-spring-soft);
+    }
+
+    html.fx-aos .exhibition__row.aos-animate .exhibition__content>* {
+        opacity: 1;
+        translate: 0 0;
+    }
+
+    html.fx-aos .exhibition__row.aos-animate .exhibition__content> :nth-child(1) {
+        transition-delay: 0.15s;
+    }
+
+    html.fx-aos .exhibition__row.aos-animate .exhibition__content> :nth-child(2) {
+        transition-delay: 0.27s;
+    }
+
+    html.fx-aos .exhibition__row.aos-animate .exhibition__content> :nth-child(3) {
+        transition-delay: 0.39s;
+    }
+}
+
+/* ---------- 2. 3D tilt (pointer-fine devices only; JS sets `rotate`) ---------- */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+
+    /* individual transform properties compose with – and never fight – AOS / hover `transform` */
+    .reveal,
+    #treasure-grid,
+    .exhibition__row {
+        perspective: 1100px;
+    }
+
+    .card,
+    .treasure-card,
+    .exhibition__image-link {
+        transition: border-color 0.3s, box-shadow 0.4s, transform 0.35s var(--ease, ease),
+            rotate 0.8s var(--fx-spring), scale 0.8s var(--fx-spring), translate 0.5s var(--fx-out);
+    }
+
+    /* rotate is intentionally NOT transitioned while tracking the pointer (JS smooths it per frame);
+       on leave this class drops and the base rule above springs it back to rest */
+    .fx-tilting {
+        scale: 1.03;
+        transition: border-color 0.3s, box-shadow 0.4s, scale 0.5s var(--fx-spring), translate 0.5s var(--fx-out) !important;
+        will-change: rotate, scale;
+        box-shadow: 0 28px 50px -22px rgb(0 0 0 / 0.85), 0 0 0 1px rgb(var(--fx-gold) / 0.28),
+            0 18px 40px -26px rgb(var(--fx-gold) / 0.55);
+    }
+
+    .treasure-card:hover {
+        translate: 0 -6px;
+    }
+}
+
+/* ---------- 3. Modals ---------- */
+/* 3a. Native <dialog> modals (exhibition + artifact): spring scale + blurred backdrop, enter AND exit */
+@supports (transition-behavior: allow-discrete) {
+    @media (prefers-reduced-motion: no-preference) {
+        .modal {
+            opacity: 0;
+            scale: 0.86;
+            translate: 0 40px;
+            transition: opacity 0.22s ease-in, scale 0.22s ease-in, translate 0.22s ease-in,
+                display 0.22s allow-discrete, overlay 0.22s allow-discrete;
+        }
+
+        .modal[open] {
+            opacity: 1;
+            scale: 1;
+            translate: 0 0;
+            animation: none;
+            transition: opacity 0.35s ease, scale 0.7s var(--fx-spring), translate 0.7s var(--fx-spring),
+                display 0.7s allow-discrete, overlay 0.7s allow-discrete;
+        }
+
+        .modal::backdrop {
+            background: rgb(5 5 7 / 0);
+            backdrop-filter: blur(0px);
+            transition: background-color 0.22s ease, backdrop-filter 0.22s ease,
+                display 0.22s allow-discrete, overlay 0.22s allow-discrete;
+        }
+
+        .modal[open]::backdrop {
+            background: rgb(5 5 7 / 0.74);
+            backdrop-filter: blur(12px) saturate(1.1);
+            animation: none;
+            transition: background-color 0.5s ease, backdrop-filter 0.6s ease,
+                display 0.6s allow-discrete, overlay 0.6s allow-discrete;
+        }
+
+        @starting-style {
+            .modal[open] {
+                opacity: 0;
+                scale: 0.86;
+                translate: 0 40px;
+            }
+
+            .modal[open]::backdrop {
+                background: rgb(5 5 7 / 0);
+                backdrop-filter: blur(0px);
+            }
+        }
+    }
+}
+
+/* Fallback for browsers without discrete transitions: spring keyframes on open */
+@supports not (transition-behavior: allow-discrete) {
+    @media (prefers-reduced-motion: no-preference) {
+        .modal[open] {
+            animation: fx-modal-spring 0.7s var(--fx-spring) both;
+        }
+
+        .modal[open]::backdrop {
+            animation: fade 0.4s ease;
+        }
+    }
+}
+
+@keyframes fx-modal-spring {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.86);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes fx-rise {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 18px, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes fx-img-settle {
+    from {
+        opacity: 0;
+        transform: scale(1.12);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+    /* artifact image settles, details cascade in */
+    .modal[open] .modal__media img {
+        animation: fx-img-settle 1.1s var(--fx-out) both;
+    }
+
+    .modal[open] .modal__body>* {
+        animation: fx-rise 0.65s var(--fx-out) both;
+    }
+
+    .modal[open] .modal__body> :nth-child(1) {
+        animation-delay: 0.12s;
+    }
+
+    .modal[open] .modal__body> :nth-child(2) {
+        animation-delay: 0.18s;
+    }
+
+    .modal[open] .modal__body> :nth-child(3) {
+        animation-delay: 0.24s;
+    }
+
+    .modal[open] .modal__body> :nth-child(4) {
+        animation-delay: 0.30s;
+    }
+
+    .modal[open] .modal__body> :nth-child(5) {
+        animation-delay: 0.36s;
+    }
+
+    .modal[open] .modal__body> :nth-child(6) {
+        animation-delay: 0.42s;
+    }
+}
+
+/* 3b. Treasure modal (.active toggled by existing inline script): opacity/visibility instead of display swap */
+@media (prefers-reduced-motion: no-preference) {
+    .treasure-modal {
+        display: flex;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        background-color: rgb(0 0 0 / 0.5);
+        backdrop-filter: blur(0px);
+        transition: opacity 0.3s ease, background-color 0.4s ease, backdrop-filter 0.4s ease, visibility 0s linear 0.3s;
+    }
+
+    .treasure-modal.active {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+        background-color: rgb(0 0 0 / 0.82);
+        backdrop-filter: blur(12px);
+        transition-delay: 0s;
+    }
+
+    .treasure-modal-content {
+        opacity: 0;
+        scale: 0.84;
+        translate: 0 44px;
+        transition: opacity 0.25s ease, scale 0.25s ease-in, translate 0.25s ease-in;
+    }
+
+    .treasure-modal.active .treasure-modal-content {
+        opacity: 1;
+        scale: 1;
+        translate: 0 0;
+        transition: opacity 0.35s ease, scale 0.75s var(--fx-spring), translate 0.75s var(--fx-spring);
+    }
+
+    .treasure-modal.active .treasure-modal-img-box img {
+        animation: fx-img-settle 1.1s var(--fx-out) both;
+    }
+
+    .treasure-modal.active .treasure-modal-body>* {
+        animation: fx-rise 0.65s var(--fx-out) both;
+    }
+
+    .treasure-modal.active .treasure-modal-body> :nth-child(1) {
+        animation-delay: 0.14s;
+    }
+
+    .treasure-modal.active .treasure-modal-body> :nth-child(2) {
+        animation-delay: 0.22s;
+    }
+
+    .treasure-modal.active .treasure-modal-body> :nth-child(3) {
+        animation-delay: 0.30s;
+    }
+
+    /* 3c. Archive modal (#archiveModal – display toggled inline; JS wrapper adds .fx-closing for the exit) */
+    html #archiveModal[data-aos] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    #archiveModal {
+        animation: fx-backdrop-in 0.45s ease both;
+    }
+
+    #archiveModal>div {
+        animation: fx-modal-spring 0.75s var(--fx-spring) both;
+    }
+
+    #archiveModal.fx-closing {
+        animation: fx-backdrop-out 0.26s ease forwards;
+        pointer-events: none;
+    }
+
+    #archiveModal.fx-closing>div {
+        animation: fx-modal-out 0.26s ease-in forwards;
+    }
+}
+
+@keyframes fx-backdrop-in {
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+
+    to {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+    }
+}
+
+@keyframes fx-backdrop-out {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes fx-modal-out {
+    to {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+}
+
+/* ---------- 4. Hero & gallery parallax (JS writes --hero-y / --hero-cy / --py once per frame) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+    .hero__bg {
+        scale: 1.14;
+        translate: 0 var(--hero-y, 0px);
+        will-change: translate;
+    }
+
+    .hero .hero__content {
+        translate: 0 var(--hero-cy, 0px);
+        opacity: var(--hero-o, 1);
+    }
+
+    .exhibition__image-link img {
+        scale: 1.14;
+        translate: 0 var(--py, 0px);
+        will-change: translate;
+    }
+
+    .exhibition__image-link:hover img {
+        scale: 1.2;
+        transition: scale 0.9s var(--fx-out);
+    }
+}
+
+/* ---------- 5. Table rows: soft pointer-following highlight (static <table> and JS grid rows) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+
+    .archive-table tbody tr,
+    .table-row {
+        transition: background-color 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .archive-table tbody tr:hover,
+    .table-row:hover {
+        /* !important beats the inline onmouseover background shorthand, which only resets background-image */
+        background-image: radial-gradient(420px circle at var(--mx, 50%) 50%, rgb(var(--fx-gold) / 0.14), transparent 70%) !important;
+        box-shadow: inset 3px 0 0 rgb(var(--fx-gold) / 0.7);
+    }
+
+    .archive-table tbody tr img,
+    .table-thumb {
+        transition: scale 0.5s var(--fx-spring), border-color 0.3s;
+    }
+
+    .archive-table tbody tr:hover img,
+    .table-row:hover .table-thumb {
+        scale: 1.12;
+    }
+}
+
+/* ---------- 6. Tactile buttons: spring press + pointer ripple (ripple painted via background-image, no DOM) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+
+    .btn,
+    .btn-detail,
+    .action-btn,
+    .exhibition__btn,
+    .t-filter-btn,
+    .nav--prev,
+    .nav--next,
+    .modal__close,
+    .treasure-close-btn {
+        transition-property: transform, scale, background-color, color, border-color, box-shadow;
+        transition-duration: 0.25s, 0.5s, 0.25s, 0.25s, 0.25s, 0.25s;
+        transition-timing-function: ease, var(--fx-spring), ease, ease, ease, ease;
+    }
+
+    .btn:active,
+    .btn-detail:active,
+    .action-btn:active,
+    .exhibition__btn:active,
+    .t-filter-btn:active,
+    .nav--prev:active,
+    .nav--next:active,
+    .modal__close:active,
+    .treasure-close-btn:active {
+        scale: 0.94;
+        transition-duration: 0.08s;
+    }
+
+    .fx-rip {
+        background-image: radial-gradient(circle at var(--rx, 50%) var(--ry, 50%),
+                rgb(255 255 255 / var(--rip-o)) var(--rip-r), transparent calc(var(--rip-r) + 1px)) !important;
+    }
+}
+
+
+/* ==========================================================================
+   CINEMATIC LAYER  (hero choreography, cursor lighting, magnetism, inertia scroll)
+   Pointer-driven values are written as CSS variables onto small subtrees only
+   (.hero / the hovered card) and consumed by `translate` / `opacity`, so every
+   frame stays on the compositor.
+   ========================================================================== */
+
+/* ---------- Lenis (its stylesheet cannot load under the site CSP, so it lives here) ---------- */
+html.lenis,
+html.lenis body {
+    height: auto;
+}
+
+.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+    overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+    pointer-events: none;
+}
+
+/* ---------- Hero: choreography start state ----------
+   Text is hidden ONLY while the page is waiting for GSAP. A 3.4s CSS failsafe reveals it
+   regardless, and html.fx-hero-fallback (set by JS if the CDN is unreachable) replays the
+   original CSS entrance instead. */
+@keyframes fx-hero-failsafe {
+    to {
+        opacity: 1;
+    }
+}
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    html:not(.fx-hero-fallback) .hero__title {
+        opacity: 0;
+        animation: shineText 5s linear infinite, fx-hero-failsafe 0.01s 3.4s forwards;
+    }
+
+    html:not(.fx-hero-fallback) .hero__lead,
+    html:not(.fx-hero-fallback) .hero__actions {
+        opacity: 0;
+        animation: fx-hero-failsafe 0.01s 3.4s forwards;
+    }
+
+    html.fx-hero-fallback .hero__title {
+        animation: shineText 5s linear infinite, fade 1.2s ease both;
+    }
+
+    /* Depth of field: the film "pulls focus" on the video; fill-mode `backwards` leaves no filter layer behind */
+    .hero__bg {
+        animation: fx-focus-pull 2.6s var(--fx-out) backwards;
+    }
+
+    /* Cinematic vignette + warm rim light (static gradient = painted once) */
+    .hero__overlay {
+        background:
+            radial-gradient(120% 95% at 68% 45%, rgb(0 0 0 / 0.28), rgb(0 0 0 / 0.8) 100%),
+            linear-gradient(to bottom, rgb(0 0 0 / 0.4), transparent 28%, rgb(0 0 0 / 0.7) 100%);
+        box-shadow: inset 0 -140px 180px -100px rgb(var(--fx-gold) / 0.16);
+        animation: fade 2s ease 0.1s backwards;
+    }
+
+    /* Ambient light that follows the cursor: a static gradient, moved with `translate` only */
+    .hero::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 900px;
+        height: 900px;
+        margin: -450px 0 0 -450px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgb(var(--fx-gold) / 0.22) 0%, rgb(var(--fx-gold) / 0.07) 38%, transparent 66%);
+        translate: var(--hgx, 68vw) var(--hgy, 42vh);
+        pointer-events: none;
+        z-index: -1;
+        will-change: translate;
+    }
+
+    /* Mouse-parallax depth: video drifts opposite the cursor, copy drifts with it
+       (composes with the scroll parallax from the previous layer) */
+    .hero__bg {
+        translate: calc(var(--hmx, 0) * -18px) calc(var(--hero-y, 0px) + var(--hmy, 0) * -12px);
+    }
+
+    .hero .hero__content {
+        translate: calc(var(--hmx, 0) * 12px) calc(var(--hero-cy, 0px) + var(--hmy, 0) * 8px);
+    }
+}
+
+@keyframes fx-focus-pull {
+    from {
+        filter: blur(22px) brightness(0.5) saturate(1.4);
+    }
+
+    to {
+        filter: blur(0) brightness(1) saturate(1);
+    }
+}
+
+/* ---------- Magnetic buttons (JS writes --mgx / --mgy while the pointer is over them) ---------- */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+
+    .btn,
+    .exhibition__btn,
+    .btn-detail,
+    .action-btn,
+    .t-filter-btn,
+    .nav--prev,
+    .nav--next {
+        translate: var(--mgx, 0px) var(--mgy, 0px);
+        transition-property: transform, scale, translate, background-color, color, border-color, box-shadow;
+        transition-duration: 0.25s, 0.5s, 0.8s, 0.25s, 0.25s, 0.25s, 0.25s;
+        transition-timing-function: ease, var(--fx-spring), var(--fx-spring), ease, ease, ease, ease;
+    }
+
+    .btn:hover,
+    .exhibition__btn:hover,
+    .btn-detail:hover,
+    .action-btn:hover,
+    .t-filter-btn:hover,
+    .nav--prev:hover,
+    .nav--next:hover {
+        transition-duration: 0.25s, 0.5s, 0.25s, 0.25s, 0.25s, 0.25s, 0.25s;
+        transition-timing-function: ease, var(--fx-spring), var(--fx-out), ease, ease, ease, ease;
+    }
+
+    /* the existing rule forces its own transition list with !important – extend it, keep the intent */
+    .btn-detail {
+        transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease,
+            translate 0.8s var(--fx-spring), scale 0.5s var(--fx-spring) !important;
+    }
+
+    .btn-detail:hover {
+        transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease,
+            translate 0.25s var(--fx-out), scale 0.5s var(--fx-spring) !important;
+    }
+
+    /* ---------- Cards gravitate toward the cursor + a travelling specular glare ---------- */
+    .card,
+    .treasure-card,
+    .exhibition__image-link {
+        position: relative;
+    }
+
+    .card,
+    .exhibition__image-link {
+        translate: var(--mgx, 0px) var(--mgy, 0px);
+    }
+
+    .treasure-card:hover {
+        translate: var(--mgx, 0px) calc(-6px + var(--mgy, 0px));
+    }
+
+    .card::after,
+    .treasure-card::after,
+    .exhibition__image-link::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 340px;
+        height: 340px;
+        margin: -170px 0 0 -170px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgb(255 238 180 / 0.26), rgb(var(--fx-gold) / 0.08) 45%, transparent 68%);
+        translate: var(--gx, 50%) var(--gy, 50%);
+        opacity: 0;
+        transition: opacity 0.45s ease;
+        pointer-events: none;
+        z-index: 3;
+    }
+
+    .fx-tilting::after {
+        opacity: 1;
+    }
+}
+
+
+/* ==========================================================================
+   FORCE LAYER – raised specificity (+ !important only where legacy rules are known to collide)
+   Legacy collisions found: `.hero__actions .btn { transition: all .3s }`, `.btn-detail {… !important}`,
+   `.modal[open] { animation }`, unconditional `.reveal { opacity: 0 }`.
+   ========================================================================== */
+
+/* GPU promotion for the few layers that animate continuously (kept small on purpose) */
+html body .hero__bg {
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    will-change: translate, scale;
+}
+
+html body .hero::after {
+    backface-visibility: hidden;
+    will-change: translate;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+    /* Hero CTA: beat the legacy `transition: all 0.3s ease` so the spring press / magnetic pull work */
+    html body .hero__actions .btn {
+        transition-property: transform, scale, translate, background-color, color, border-color, box-shadow !important;
+        transition-duration: 0.25s, 0.5s, 0.8s, 0.25s, 0.25s, 0.25s, 0.25s !important;
+        transition-timing-function: ease, var(--fx-spring), var(--fx-spring), ease, ease, ease, ease !important;
+        translate: var(--mgx, 0px) var(--mgy, 0px);
+    }
+
+    html body .hero__actions .btn:hover {
+        transition-duration: 0.25s, 0.5s, 0.25s, 0.25s, 0.25s, 0.25s, 0.25s !important;
+        transition-timing-function: ease, var(--fx-spring), var(--fx-out), ease, ease, ease, ease !important;
+    }
+
+    html body .hero__actions .btn:active {
+        scale: 0.94;
+    }
+
+    /* Press feedback + magnetic pull on every interactive control */
+    html body .btn,
+    html body .exhibition__btn,
+    html body .btn-detail,
+    html body .action-btn,
+    html body .t-filter-btn,
+    html body .nav--prev,
+    html body .nav--next {
+        translate: var(--mgx, 0px) var(--mgy, 0px);
+    }
+
+    html body .btn:active,
+    html body .exhibition__btn:active,
+    html body .btn-detail:active,
+    html body .action-btn:active,
+    html body .t-filter-btn:active,
+    html body .nav--prev:active,
+    html body .nav--next:active {
+        scale: 0.94;
+    }
+
+    /* Cards: spring return from tilt (the live-tracking override stays on .fx-tilting) */
+    html body .card,
+    html body .exhibition__image-link {
+        transition: border-color 0.3s, box-shadow 0.4s, transform 0.35s ease,
+            rotate 0.8s var(--fx-spring), scale 0.8s var(--fx-spring), translate 0.5s var(--fx-out);
+    }
+
+    html body .fx-tilting {
+        transition: border-color 0.3s, box-shadow 0.4s, scale 0.5s var(--fx-spring), translate 0.5s var(--fx-out) !important;
+        scale: 1.03;
+    }
+
+    /* Modals: GPU hints only while open, and the legacy keyframe entrance can't double-animate */
+    html body .modal[open],
+    html body .treasure-modal.active .treasure-modal-content {
+        will-change: transform, opacity;
+    }
+
+    html body .treasure-modal.active {
+        will-change: opacity;
+    }
+}
+
+@supports (transition-behavior: allow-discrete) {
+    @media (prefers-reduced-motion: no-preference) {
+        html body .modal[open] {
+            animation: none !important;
+        }
+
+        html body .modal[open]::backdrop {
+            animation: none !important;
+        }
+    }
+}
+
+/* Scroll reveals for JS-built cards: guaranteed to win over every legacy .reveal rule */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    html body .reveal {
+        opacity: 0 !important;
+        transform: translate3d(0, 48px, 0) scale(0.95) !important;
+        transition: opacity 0.7s ease, transform 1s var(--fx-spring-soft) !important;
+        transition-delay: calc(var(--i, 0) * 90ms) !important;
+    }
+
+    html body .reveal.is-visible,
+    html body .reveal.active {
+        opacity: 1 !important;
+        transform: none !important;
+        will-change: auto;
+    }
+}
+
+/* ==========================================================================
+   MCPAREN & SUPERHERO MOTION ENGINE (60FPS GPU ACCELERATED)
+   ========================================================================== */
+
+/* 1. GPU Acceleration & Smooth Motion Base */
+.hero__title,
+.hero__lead,
+.exhibition__row,
+.treasure-card,
+.timeline-item,
+.card,
+.btn {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    /* تفعيل تسريع كارت الشاشة GPU لتجنب أي تقطيع */
+}
+
+/* 2. Cinematic Hero Text & Button Elevation */
+.hero__title {
+    background: linear-gradient(135deg, #ffffff 40%, var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+}
+
+.hero .btn--accent {
+    position: relative;
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.25);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease !important;
+}
+
+.hero .btn--accent:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 18px 40px rgba(212, 175, 55, 0.45);
+}
+
+/* 3. High-End 3D Physics Tilt Effect for Cards & Galleries */
+.treasure-card,
+.exhibition__row,
+.card {
+    transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+    transform-style: preserve-3d;
+}
+
+.treasure-card:hover,
+.exhibition__row:hover,
+.card:hover {
+    border-color: var(--color-accent) !important;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8), 0 0 20px rgba(212, 175, 55, 0.15);
+}
+
+/* Image Zoom Dynamics Inside Cards */
+.card__media img,
+.treasure-img-box img,
+.exhibition__image-link img {
+    transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1), filter 0.5s ease !important;
+}
+
+.card:hover .card__media img,
+.treasure-card:hover .treasure-img-box img,
+.exhibition__row:hover img {
+    transform: scale(1.06);
+    filter: brightness(1.08) contrast(1.03);
+}
+
+/* 4. Luxury Glassmorphism Enhancement for Timeline & Modals */
+.highlight-box,
+.timeline-row .highlight-box {
+    backdrop-filter: blur(12px) !important;
+    background: rgba(26, 26, 26, 0.75) !important;
+    border: 1px solid rgba(212, 175, 55, 0.25) !important;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+}
+
+.timeline-row:hover .highlight-box {
+    transform: translateY(-4px);
+    border-color: var(--color-accent) !important;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+}
+
+/* 5. Lenis Smooth Scroll Integration Styles */
+html.lenis {
+    height: auto;
+}
+
+.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+    overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+    pointer-events: none;
+}
+
+/* Hero Word Reveal Styling */
+.hero__word-wrap {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    margin-left: 0.25em;
+}
+
+.hero__word {
+    display: inline-block;
+    will-change: transform, opacity;
+    transform-origin: 0% 100%;
+}
+
+/* GPU Acceleration للحفاظ على 60FPS بدون تقطيع */
+.exhibition__row,
+.treasure-card,
+.timeline-item {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+}

@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>متحف السلالات الكبرى | معارض الفن والتاريخ</title>
+    <meta name="description"
+        content="متحف السلالات الكبرى: مجموعات من الفن الكلاسيكي والمعاصر والقطع الأثرية. تصفّح المعارض الحالية والمقتنيات واحجز زيارتك.">
+    <meta name="theme-color" content="#0e0e10">
+
+    <!-- Open Graph (add an absolute og:image + og:url once the production domain is known) -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ar_AR">
+    <meta property="og:title" content="متحف السلالات الكبرى | معارض الفن والتاريخ">
+    <meta property="og:description" content="تصفّح المعارض الحالية والمقتنيات في متحفنا.">
+
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230e0e10'/%3E%3Cpath d='M16 6l8 10-8 10-8-10z' fill='none' stroke='%23d4af37' stroke-width='2'/%3E%3C/svg%3E">
+
+    <!-- Fonts: Cormorant Garamond + Inter for Latin glyphs; Amiri + Tajawal supply the Arabic glyphs -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Tajawal:wght@400;500;700&display=swap">
+
+    <!-- The hero picture is the largest paint: fetch it before the parser reaches the <img> -->
+    <link rel="preload" as="image" fetchpriority="high"
+        href="https://images.unsplash.com/photo-1554907984-15263bfd63bd?auto=format&fit=crop&w=1600&q=70"
+        imagesrcset="https://images.unsplash.com/photo-1554907984-15263bfd63bd?auto=format&fit=crop&w=800&q=70 800w, https://images.unsplash.com/photo-1554907984-15263bfd63bd?auto=format&fit=crop&w=1600&q=70 1600w, https://images.unsplash.com/photo-1554907984-15263bfd63bd?auto=format&fit=crop&w=2400&q=70 2400w"
+        imagesizes="100vw">
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Start downloading the data while the browser parses the rest of the page -->
+    <link rel="preload" href="data/collection.json" as="fetch" type="application/json" crossorigin="anonymous">
+    <link rel="preload" href="data/exhibitions.json" as="fetch" type="application/json" crossorigin="anonymous">
+
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            AOS.init({ duration: 1000, once: true });
+        });
+    </script>
+
+    <!-- Structured data for search engines (a data block, so the strict CSP does not touch it) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Museum",
+        "name": "متحف السلالات الكبرى",
+        "description": "مجموعات من الفن الكلاسيكي والمعاصر والقطع الأثرية."
+    }
+    </script>
+</head>
+
+<body>
+    <a class="skip-link" href="#main">انتقل إلى المحتوى الرئيسي</a>
+
+    <!-- ============ Header ============ -->
+    <header class="site-header" id="site-header">
+        <div class="container site-header__inner">
+            <a class="brand" href="#hero" aria-label="متحف السلالات الكبرى – الصفحة الرئيسية">
+                <svg class="brand__mark" width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"
+                    focusable="false">
+                    <path d="M16 4l10 12-10 12L6 16z" fill="none" stroke="currentColor" stroke-width="2.2" />
+                </svg>
+                <span class="brand__name">متحف السلالات الكبرى</span>
+            </a>
+            <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+                <span class="visually-hidden">القائمة</span>
+                <span class="nav-toggle__bar" aria-hidden="true"></span>
+                <span class="nav-toggle__bar" aria-hidden="true"></span>
+                <span class="nav-toggle__bar" aria-hidden="true"></span>
+            </button>
+
+            <nav class="primary-nav" id="primary-nav" aria-label="التنقل الرئيسي">
+                <ul class="primary-nav__list">
+                    <li><a href="#hero">الرئيسية</a></li>
+                    <li><a href="#exhibitions">المعارض</a></li>
+                    <li><a href="#timeline">الحقبات التاريخية</a></li>
+                    <li><a href="#treasures">المعروضات</a></li>
+                    <li><a href="#archive" class="nav-link">السجل الشامل</a></li>
+                    <li><a href="#about">عن المتحف</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+
+        <!-- ============ Hero ============ -->
+        <section class="hero" id="hero" aria-labelledby="hero-title">
+            <!-- فيديو الخلفية بحجم الشاشة الكامل -->
+            <video class="hero__bg" autoplay muted loop playsinline preload="auto">
+                <source src="document_5375200705369909196.mp4" type="video/mp4">
+                متصفحك لا يدعم عرض الفيديو.
+            </video>
+
+            <!-- طبقة التعتيم -->
+            <div class="hero__overlay"></div>
+
+            <!-- محتوى النصوص في أقصى اليمين -->
+            <div class="container hero__content">
+                <h1 class="hero__title" id="hero-title">استكشف الفن والتاريخ في مكان واحد</h1>
+                <p class="hero__lead">مرحباً بك في متحف السلالات الكبرى. نقدم لك مجموعات استثنائية من الفن الكلاسيكي
+                    والمعاصر والقطع الأثرية الفريدة.</p>
+                <div class="hero__actions">
+                    <a href="#exhibitions" class="btn btn--accent">تصفح المعارض الحالية</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ Featured pieces: 3D carousel (filled from data/collection.json) ============ -->
+        <section class="showcase" id="featured" aria-labelledby="featured-title">
+            <div class="container showcase__container">
+
+                <!-- العنوان في الجهة اليمنى -->
+                <div class="showcase__header">
+                    <h4 class="showcase__title" id="featured-title">أبرز شخصيات عرفها التاريخ</h4>
+                    <p class="showcase__subtitle">تصفح أبرز الشخصيات المؤثرة عبر العصور</p>
+                </div>
+
+                <!-- الكاروسيل -->
+                <div class="css-carousel-wrapper">
+                    <div class="carousel__track-wrapper">
+                        <ul class="carousel__track" id="carousel-track">
+
+                            <li class="carousel__item active" data-index="0">
+                                <a href="https://youtu.be/YNPCqiq1Ubk?si=cr7wYDMbBG1M3uZX" target="_blank">
+                                    <div class="carousel__image-box">
+                                        <img src="./شخصيات عرفها التاري/images.jpeg" alt="الإمام علي بن أبي طالب">
+                                    </div>
+                                </a>
+                                <div class="caption">
+                                    <strong>الإمام علي بن أبي طالب</strong>
+                                    <span>رابع الخلفاء الراشدين، وأعظم القادة والحكماء.</span>
+                                </div>
+                            </li>
+                            <!-- 6. الملك حمورابي (الحضارة البابلية) -->
+                            <li class="carousel__item" data-index="5">
+                                <a href="https://youtu.be/bfHPmPfmmRs?si=g1AMzPweujYRPF7U" target="_blank">
+                                    <div class="carousel__image-box">
+                                        <img src="./شخصيات عرفها التاري/images1.jpeg" alt="الملك حمورابي">
+                                    </div>
+                                </a>
+                                <div class="caption">
+                                    <strong>الملك حمورابي</strong>
+                                    <span>سادس ملوك بابل، صاحب أشهر شريعة قوانين في التاريخ.</span>
+                                </div>
+                            </li>
+
+                            <!-- 7. الملك جلجامش (الحضارة السومرية) -->
+                            <li class="carousel__item" data-index="6">
+                                <a href="https://youtu.be/5voImozSv-s?si=exeW5fNdrzn6SXe1" target="_blank">
+                                    <div class="carousel__image-box">
+                                        <img src="./شخصيات عرفها التاري/images (1).jpeg" alt="الملك جلجامش">
+                                    </div>
+                                </a>
+                                <div class="caption">
+                                    <strong>الملك جلجامش</strong>
+                                    <span>ملك أوروك السومري، وبطل أقدم ملحمة أدبية.</span>
+                                </div>
+                            </li>
+
+                            <!-- 8. الملك نبوخذ نصر الثاني (الحضارة البابلية) -->
+                            <li class="carousel__item" data-index="7">
+                                <a href="https://youtu.be/slw3kwS-how?si=ZczzERGVY_s96Ktz" target="_blank">
+                                    <div class="carousel__image-box">
+                                        <img src="./شخصيات عرفها التاري/images (2).jpeg" alt="نبوخذ نصر الثاني">
+                                    </div>
+                                </a>
+                                <div class="caption">
+                                    <strong>نبوخذ نصر الثاني</strong>
+                                    <span>أعظم ملوك الإمبراطورية البابلية الثانية وباني الجنائزية المعلقة.</span>
+                                </div>
+                            </li>
+
+                            <li class="carousel__item next" data-index="1">
+                                <a href="https://youtu.be/5FD5HU6C8sY?si=WSPY6Vdep4lhuGs_" target="_blank">
+                                    <div class="carousel__image-box">
+                                        <img src="./شخصيات عرفها التاري/images (3).jpeg" alt="الحسن بن الهيثم">
+                                    </div>
+                                </a>
+                                <div class="caption">
+                                    <strong>الحسن بن الهيثم</strong>
+                                    <span>عالم موسوعي عربي وأب البصريات الحديثة.</span>
+                                </div>
+                            </li>
+
+                            <li class="carousel__item" data-index="2">
+                                <a href="https://youtu.be/FIpuTep5I-o?si=sXLZ8PuJaS9ycb4V" target="_blank">
+                                    <div class="carousel__image-box">
+                                        <img src="./شخصيات عرفها التاري/images (6).jpeg" alt=" الملك نمرود">
+                                    </div>
+                                </a>
+                                <div class="caption">
+                                    <strong>الملك نمرود</strong>
+                                    <span>ملك الإمبراطورية البابلية الثانية، مشهور بحكمه العادل.</span>
+                                </div>
+                            </li>
+
+                            <li class="carousel__item" data-index="3">
+                                <a href="https://youtu.be/S2yUpTvlDCs?si=tFDiMEgFZ27WcEF1" target="_blank">
+                                    <div class="carousel__image-box">
+                                        <img src="./شخصيات عرفها التاري/images (4).jpeg" alt="ابن سينا">
+                                    </div>
+                                </a>
+                                <div class="caption">
+                                    <strong>ابن سينا</strong>
+                                    <span>طبيب وفيلسوف إسلامي، لُقب بأمير الأطباء.</span>
+                                </div>
+                            </li>
+
+                            <li class="carousel__item prev" data-index="4">
+                                <a href="https://youtu.be/HqhQ760GXNg?si=lQs_XDYkpeNWXgSn" target="_blank">
+                                    <div class="carousel__image-box">
+                                        <img src="./شخصيات عرفها التاري/images (5).jpeg" alt="صلاح الدين الأيوبي">
+                                    </div>
+                                </a>
+                                <div class="caption">
+                                    <strong>صلاح الدين الأيوبي</strong>
+                                    <span>قائد إسلامي عظيم ومؤسس الدولة الأيوبية.</span>
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+
+                    <!-- أزرار التنقل -->
+                    <div class="carousel__nav">
+                        <button class="nav--prev" id="prev-btn"></button>
+                        <button class="nav--next" id="next-btn"></button>
+                    </div>
+
+                    <!-- النقاط -->
+                    <div class="carousel__dots" id="carousel-dots">
+                        <span class="carousel__dot active" data-index="0"></span>
+                        <span class="carousel__dot" data-index="1"></span>
+                        <span class="carousel__dot" data-index="2"></span>
+                        <span class="carousel__dot" data-index="3"></span>
+                        <span class="carousel__dot" data-index="4"></span>
+                        <span class="carousel__dot" data-index="5"></span>
+                        <span class="carousel__dot" data-index="6"></span>
+                        <span class="carousel__dot" data-index="7"></span>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ============ Exhibitions (filled from data/exhibitions.json) ============ -->
+        <section class="section exhibitions-section" id="exhibitions" aria-labelledby="exhibitions-title">
+            <div class="container">
+                <div class="section__head">
+                    <h4 class="section__title" id="exhibitions-title">المعارض الحالية</h4>
+                    <p class="section__intro">ثلاث قاعات تجمع الفن الكلاسيكي والمعاصر والنحت. اختر قاعة لتعرف المزيد.
+                    </p>
+                </div>
+
+                <div class="exhibitions__list">
+
+                    <!-- القاعة الأولى -->
+                    <div class="exhibition__row" data-aos="fade-up">
+                        <!-- تأكد من استبدال classical-hall.html باسم ملف الصفحة الخاص بالقاعة الأولى -->
+                        <a href="classical-hall.html" class="exhibition__image-link">
+                            <img src="./classical/images (17).jpeg" alt="الفن الكلاسيكي">
+                        </a>
+                        <div class="exhibition__content">
+                            <h3>قاعة الفن الكلاسيكي</h3>
+                            <p>مجموعة مميزة من الأعمال الكلاسيكية الخالدة عبر العصور، تحتوي هذه القاعة على 20 لوحة فنية
+                                أصلية تعود لأبرز فناني التاريخ.</p>
+                            <a href="classical-hall.html" class="exhibition__btn">دخول القاعة </a>
+                        </div>
+                    </div>
+
+                    <!-- القاعة الثانية -->
+                    <div class="exhibition__row reverse" data-aos="fade-up">
+                        <!-- تأكد من استبدال contemporary-hall.html باسم ملف القاعة الثانية -->
+                        <a href="contemporary-hall.html" class="exhibition__image-link">
+                            <img src="./contemporary/images.jpeg" alt="الفن المعاصر">
+                        </a>
+                        <div class="exhibition__content">
+                            <h3>قاعة الفن المعاصر</h3>
+                            <p>استكشف أحدث الأعمال واللوحات الفنية الحديثة والمعاصرة التي تم اختيارها بعناية لضم 20
+                                عملاً فنياً استثنائياً.</p>
+                            <a href="contemporary-hall.html" class="exhibition__btn">دخول القاعة </a>
+                        </div>
+                    </div>
+
+                    <!-- القاعة الثالثة -->
+                    <div class="exhibition__row" data-aos="fade-up">
+                        <!-- تأكد من استبدال sculpture-hall.html باسم ملف القاعة الثالثة -->
+                        <a href="sculpture-hall.html" class="exhibition__image-link">
+                            <img src="./sculpture/images.jpeg" alt="قاعة النحت">
+                        </a>
+                        <div class="exhibition__content">
+                            <h3>قاعة المنحوتات التاريخية</h3>
+                            <p>منحوتات وقطع أثرية تجسد الإبداع في نحت الحجر والمعدن، وتضم القاعة 20 تحفة نحتية نادرة.
+                            </p>
+                            <a href="sculpture-hall.html" class="exhibition__btn">دخول القاعة </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ Historical timeline ============ -->
+        <section class="section timeline-section" id="timeline" aria-labelledby="timeline-title">
+            <div class="container">
+                <div class="section__head" style="text-align: center; margin-bottom: 50px;">
+                    <h2 class="section__title" id="timeline-title" style="color: #f39c12; font-size: 2.2rem;">عصور وكنوز
+                        الحضارات</h2>
+                    <p class="section__intro" style="color: #aaa;">انقر على أي عصر تاريخي لقراءة الشرح المفصل عنه في
+                        المتصفح</p>
+                </div>
+
+                <div class="timeline-container"
+                    style="position: relative; max-width: 900px; margin: 0 auto; direction: rtl;">
+
+                    <!-- العصر الأول: ما قبل التاريخ -->
+                    <div class="timeline-item" data-aos="fade-right"
+                        style="display: flex; align-items: center; margin-bottom: 40px;">
+                        <div style="flex: 1; text-align: left; padding-left: 30px;">
+                            <a href="https://ar.wikipedia.org/wiki/ما_قبل_التاريخ" target="_blank"
+                                style="text-decoration: none;">
+                                <div style="background: #1a1a1a; border: 1px solid #444; border-radius: 10px; padding: 20px; transition: 0.3s; display: inline-block; width: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.5);"
+                                    onmouseover="this.style.borderColor='#f39c12'"
+                                    onmouseout="this.style.borderColor='#444'">
+                                    <span style="color: #f39c12; font-size: 0.9rem; font-weight: bold;">أبرز
+                                        المكتشفات:</span>
+                                    <p style="color: #ccc; margin: 8px 0 0 0; font-size: 0.95rem;">فأس أور الدحية
+                                        ومجموعة حُلي منحوتة من حجر الصوان.</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div
+                            style="width: 40px; height: 40px; background: #f39c12; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 2; box-shadow: 0 0 10px #f39c12;">
+                            01</div>
+                        <div style="flex: 1; padding-right: 30px; text-align: right;">
+                            <a href="https://ar.wikipedia.org/wiki/ما_قبل_التاريخ" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <h3 style="color: #f39c12; margin: 0 0 5px 0; font-size: 1.2rem;">عصر ما قبل التاريخ
+                                </h3>
+                                <p style="color: #aaa; margin: 0; font-size: 0.85rem;">أمد القوانين الأولى والعلوم
+                                    العملية والإنشاءات المعمارية الخالدة مثل بوابة عشتار والمعابد المستقلة.</p>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- العصر الثاني: عصر الزراعة والعلماء -->
+                    <div class="timeline-item" data-aos="fade-right"
+                        style="display: flex; align-items: center; margin-bottom: 40px;">
+                        <div style="flex: 1; text-align: left; padding-left: 30px;">
+                            <a href="https://ar.wikipedia.org/wiki/تاريخ_الزراعة" target="_blank"
+                                style="text-decoration: none; color: inherit; text-align: right; display: block;">
+                                <h3 style="color: #f39c12; margin: 0 0 5px 0; font-size: 1.2rem;">عصر الزراعة والعلماء
+                                </h3>
+                                <p style="color: #aaa; margin: 0; font-size: 0.85rem;">فننون التخطيط والعمارة الجنائزية
+                                    والمرمرية والتماتيل البرونزية والذهبية للآلة والملوك.</p>
+                            </a>
+                        </div>
+                        <div
+                            style="width: 40px; height: 40px; background: #f39c12; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 2; box-shadow: 0 0 10px #f39c12;">
+                            02</div>
+                        <div style="flex: 1; padding-right: 30px;">
+                            <a href="https://ar.wikipedia.org/wiki/تاريخ_الزراعة" target="_blank"
+                                style="text-decoration: none;">
+                                <div style="background: #1a1a1a; border: 1px solid #444; border-radius: 10px; padding: 20px; transition: 0.3s; display: inline-block; width: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.5);"
+                                    onmouseover="this.style.borderColor='#f39c12'"
+                                    onmouseout="this.style.borderColor='#444'">
+                                    <span style="color: #f39c12; font-size: 0.9rem; font-weight: bold;">أبرز
+                                        المكتشفات:</span>
+                                    <p style="color: #ccc; margin: 8px 0 0 0; font-size: 0.95rem;">تمثال الكاتب السومري
+                                        والمبروشات الفلكية المصنوعة من البرونز.</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- العصر الثالث: العصر العباسي الذهبي -->
+                    <div class="timeline-item" data-aos="fade-right"
+                        style="display: flex; align-items: center; margin-bottom: 40px;">
+                        <div style="flex: 1; text-align: left; padding-left: 30px;">
+                            <a href="https://ar.wikipedia.org/wiki/العصر_العباسي" target="_blank"
+                                style="text-decoration: none;">
+                                <div style="background: #1a1a1a; border: 1px solid #444; border-radius: 10px; padding: 20px; transition: 0.3s; display: inline-block; width: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.5);"
+                                    onmouseover="this.style.borderColor='#f39c12'"
+                                    onmouseout="this.style.borderColor='#444'">
+                                    <span style="color: #f39c12; font-size: 0.9rem; font-weight: bold;">أبرز
+                                        المكتشفات:</span>
+                                    <p style="color: #ccc; margin: 8px 0 0 0; font-size: 0.95rem;">الدينار العباسي
+                                        الذهبي الخالص والأواني الفخارية العباسية بريق معدنيه.</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div
+                            style="width: 40px; height: 40px; background: #f39c12; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 2; box-shadow: 0 0 10px #f39c12;">
+                            03</div>
+                        <div style="flex: 1; padding-right: 30px; text-align: right;">
+                            <a href="https://ar.wikipedia.org/wiki/العصر_العباسي" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <h3 style="color: #f39c12; margin: 0 0 5px 0; font-size: 1.2rem;">العصر العباسي الذهبي
+                                </h3>
+                                <p style="color: #aaa; margin: 0; font-size: 0.85rem;">الوصال بين الحكمة والترجمة
+                                    وابتكار الخزف البريق والمسكوكات الذهبية المصممة بدقة عالية.</p>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- العصر الرابع: عصر الأندلس والأسرة الإسلامية -->
+                    <div class="timeline-item" data-aos="fade-right" style="display: flex; align-items: center;">
+                        <div style="flex: 1; text-align: left; padding-left: 30px;">
+                            <a href="https://ar.wikipedia.org/wiki/تاريخ_الأندلس" target="_blank"
+                                style="text-decoration: none; color: inherit; text-align: right; display: block;">
+                                <h3 style="color: #f39c12; margin: 0 0 5px 0; font-size: 1.2rem;">عصر الأندلس والأسرة
+                                    الإسلامية</h3>
+                                <p style="color: #aaa; margin: 0; font-size: 0.85rem;">روائع الزخرفة الهندسية والمخطوطات
+                                    الطبية والثقافية ذات الحواشي المعدنية.</p>
+                            </a>
+                        </div>
+                        <div
+                            style="width: 40px; height: 40px; background: #f39c12; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 2; box-shadow: 0 0 10px #f39c12;">
+                            04</div>
+                        <div style="flex: 1; padding-right: 30px;">
+                            <a href="https://ar.wikipedia.org/wiki/تاريخ_الأندلس" target="_blank"
+                                style="text-decoration: none;">
+                                <div style="background: #1a1a1a; border: 1px solid #444; border-radius: 10px; padding: 20px; transition: 0.3s; display: inline-block; width: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.5);"
+                                    onmouseover="this.style.borderColor='#f39c12'"
+                                    onmouseout="this.style.borderColor='#444'">
+                                    <span style="color: #f39c12; font-size: 0.9rem; font-weight: bold;">أبرز
+                                        المكتشفات:</span>
+                                    <p style="color: #ccc; margin: 8px 0 0 0; font-size: 0.95rem;">المنحوتات الأساسية
+                                        للصانع والاتقود العربية ذات النقوش القرآنية.</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ Treasures: search + category filter + results ============ -->
+        <section id="treasures" class="treasured-section" aria-labelledby="treasured-title">
+            <div class="treasured-container">
+                <header class="treasured-header">
+                    <p class="treasured-subtitle">المجموعات الأثرية</p>
+                    <h2 class="treasured-title" id="treasured-title">معرض الكنوز المحفوظة</h2>
+                </header>
+
+                <!-- حقل البحث -->
+                <div class="treasured-search-wrapper">
+                    <input type="search" id="searchInput" class="treasured-search-input"
+                        placeholder="أدخل اسم القطعة أو الحقبة..." autocomplete="off">
+                </div>
+
+                <!-- شبكة عرض الكنوز التسعة -->
+                <div class="container treasure-results">
+                    <ul class="grid" id="treasure-grid"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; list-style: none; padding: 0;">
+
+                        <!-- كنز 1: قيثارة أور الذهبية -->
+                        <li class="treasure-card" data-aos="fade-up" onclick="openTreasureModal(this)"
+                            data-img="./gold/قيثارة أور الذهبية.jpeg" data-title="قيثارة أور الذهبية"
+                            data-period="الحضارة السومرية (حوالي 2500 ق.م)"
+                            data-location="المقابر الملكية في أور (المتحف العراقي)"
+                            data-desc="واحدة من أقدم الآلات الموسيقية في التاريخ، تتميز برأس ثور مصنوع من الذهب الخالص واللازورد، وتعد رمزاً للإبداع الفني الموسيقي السومري.">
+                            <div class="treasure-img-box">
+                                <img src="./gold/images.jpeg" alt="قيثارة أور الذهبية">
+                            </div>
+                            <div class="treasure-info">
+                                <h3>قيثارة أور الذهبية</h3>
+                                <p>الحضارة السومرية</p>
+                            </div>
+                        </li>
+
+                        <!-- كنز 2: خوذة الملوك السومرية (خوذة مسكالمدغ) -->
+                        <li class="treasure-card" data-aos="fade-up" onclick="openTreasureModal(this)"
+                            data-img="./gold/images (2).jpeg" data-title="خوذة مسكالمدغ الذهبية"
+                            data-period="السلالة السومرية المبكرة (2600 ق.م)" data-location="أور - المتحف العراقي"
+                            data-desc="خوذة مصنوعة من الذهب الخالص مصممة على شكل شعر مكتمل بتفاصيل دقيقة جداً، تعود للملك السومري مسكالمدغ وتصنف كواحدة من أروع القطع الذهبية.">
+                            <div class="treasure-img-box">
+                                <img src="./gold/images (1).jpeg" alt="خوذة مسكالمدغ">
+                            </div>
+                            <div class="treasure-info">
+                                <h3>خوذة مسكالمدغ الذهبية</h3>
+                                <p>السلالة السومرية</p>
+                            </div>
+                        </li>
+
+                        <!-- كنز 3: كنز نمرود الذهبي -->
+                        <li class="treasure-card" data-aos="fade-up" onclick="openTreasureModal(this)"
+                            data-img="./gold/images (4).jpeg" data-title="كنز نمرود (مجوهرات ملكات آشور)"
+                            data-period="الإمبراطورية الآشورية الحديثة (القرن 8 ق.م)"
+                            data-location="نمرود - المتحف العراقي"
+                            data-desc="مجموعة شاسعة من المجوهرات والتاج الذهبي والأحجار الكريمة النادرة التي اكتشفت في المقابر الملكية تحت القصر الآشوري في نمرود.">
+                            <div class="treasure-img-box">
+                                <img src="./gold/images (3).jpeg" alt="كنز نمرود">
+                            </div>
+                            <div class="treasure-info">
+                                <h3>كنز نمرود الذهبي</h3>
+                                <p>الإمبراطورية الآشورية</p>
+                            </div>
+                        </li>
+
+                        <!-- كنز 4: الثور المجنح (لاماسو) -->
+                        <li class="treasure-card" data-aos="fade-up" onclick="openTreasureModal(this)"
+                            data-img="./gold/images (6).jpeg" data-title="الثور المجنح (لاماسو)"
+                            data-period="الحضارة الآشورية (القرن 8 ق.م)" data-location="خورسباد / نينوى"
+                            data-desc="تمثال حارس ضخم برأس إنسان وجسم ثور وأجنحة نسر، كان يوضع عند أبواب القصور الآشورية لحمايتها وطرد الأرواح الشريرة.">
+                            <div class="treasure-img-box">
+                                <img src="./gold/images (5).jpeg" alt="الثور المجنح">
+                            </div>
+                            <div class="treasure-info">
+                                <h3>الثور المجنح (لاماسو)</h3>
+                                <p>الحضارة الآشورية</p>
+                            </div>
+                        </li>
+
+                        <!-- كنز 5: تمثال الكاتب السومري (إيبيه إيل) -->
+                        <li class="treasure-card" data-aos="fade-up" onclick="openTreasureModal(this)"
+                            data-img="./gold/images (8).jpeg" data-title="تمثال إيبيه إيل (الكاتب السومري)"
+                            data-period="العصر السومري المبكر (2400 ق.م)" data-location="مملكة ماري / المتحف العراقي"
+                            data-desc="تمثال منحوت من الألباستر الأبيض بعيون مطعمة باللازورد والصدف، يجسد شخصية موظف رفيع المستوى في وضعية تعبد وسكون.">
+                            <div class="treasure-img-box">
+                                <img src="./gold/images (7).jpeg" alt="تمثال إيبيه إيل">
+                            </div>
+                            <div class="treasure-info">
+                                <h3>تمثال الكاتب السومري</h3>
+                                <p>العصر السومري</p>
+                            </div>
+                        </li>
+
+                        <!-- كنز 6: قناع أوروك (فتاة الوركاء) -->
+                        <li class="treasure-card" data-aos="fade-up" onclick="openTreasureModal(this)"
+                            data-img="./gold/images (10).jpeg" data-title="قناع أوروك (موناليزا السومرية)"
+                            data-period="حضارة الوركاء (3100 ق.م)" data-location="الوركاء - المتحف العراقي"
+                            data-desc="من أقدم المنحوتات البشرية الوجهية في العالم، منحوتة من الرخام الرخو وتتميز بتفاصيل ناعمة ودقيقة جداً تعكس براعة الفن العراقي القديم.">
+                            <div class="treasure-img-box">
+                                <img src="./gold/images (9).jpeg" alt="فتاة الوركاء">
+                                alt="فتاة الوركاء">
+                            </div>
+                            <div class="treasure-info">
+                                <h3>قناع أوروك (فتاة الوركاء)</h3>
+                                <p>حضارة الوركاء</p>
+                            </div>
+                        </li>
+
+                        <!-- كنز 7: مسلة حمورابي -->
+                        <li class="treasure-card" data-aos="fade-up" onclick="openTreasureModal(this)"
+                            data-img="./gold/images (11).jpeg" data-title="مسلة حمورابي"
+                            data-period="الإمبراطورية البابلية القديمة (1750 ق.م)" data-location="بابل - المتحف العراقي"
+                            data-desc="مسلة حجرية سوداء من البازلت تتضمن أول شريعة قانونية مكتوبة ومكتملة في التاريخ البشري تنظم حياة المجتمع والعدالة.">
+                            <div class="treasure-img-box">
+                                <img src="./gold/images (12).jpeg" alt="مسلة حمورابي">
+                            </div>
+                            <div class="treasure-info">
+                                <h3>مسلة حمورابي</h3>
+                                <p>الحضارة البابلية</p>
+                            </div>
+                        </li>
+
+                        <!-- كنز 8: أسد بابل -->
+                        <li class="treasure-card" data-aos="fade-up" onclick="openTreasureModal(this)"
+                            data-img="./gold/images (14).jpeg" data-title="تمثال أسد بابل"
+                            data-period="الحضارة البابلية (القرن 6 ق.م)" data-location="مدينة بابل الأثرية"
+                            data-desc="تمثال ضخم مصنوع من الحجر الأسود الصلب يمثل أسداً يدوس رجلاً مستلقياً، ويرمز إلى شجاعة وقوة بابل وانتصارها على الأعداء.">
+                            <div class="treasure-img-box">
+                                <img src="./gold/images (13).jpeg" alt="أسد بابل">
+                            </div>
+                            <div class="treasure-info">
+                                <h3>تمثال أسد بابل</h3>
+                                <p>الحضارة البابلية</p>
+                            </div>
+                        </li>
+
+                        <!-- كنز 9: زهرية الوركاء الإناء السومري -->
+                        <li class="treasure-card" data-aos="fade-up" onclick="openTreasureModal(this)"
+                            data-img="./gold/images (16).jpeg" data-title="إناء الوركاء السومري"
+                            data-period="عصر الوركاء (3200 ق.م)" data-location="الوركاء - المتحف العراقي"
+                            data-desc="إناء نحتي متدرج الطبقات مصنوع من حجر حليبي ناصع الناعمة، ينقش القصة الأولى لتقديم القرابين ودورة الحياة في العراق القديم.">
+                            <div class="treasure-img-box">
+                                <img src="./gold/images (15).jpeg" alt="إناء الوركاء">
+                            </div>
+                            <div class="treasure-info">
+                                <h3>إناء الوركاء السومري</h3>
+                                <p>عصر الوركاء</p>
+                            </div>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- النافذة المنبثقة للتفاصيل (Modal) -->
+        <div id="treasureModal" class="treasure-modal" onclick="closeTreasureModalOutside(event)">
+            <div class="treasure-modal-content">
+                <button class="treasure-close-btn" onclick="closeTreasureModal()">×</button>
+                <div class="treasure-modal-img-box">
+                    <img id="tModalImg" src="" alt="صورة الكنز">
+                </div>
+                <div class="treasure-modal-body">
+                    <h2 id="tModalTitle">عنوان الكنز</h2>
+                    <div class="treasure-modal-meta">
+                        <p>الحقبة التاريخية: <span id="tModalPeriod">-</span></p>
+                        <p>موقع الاكتشاف/العرض: <span id="tModalLocation">-</span></p>
+                    </div>
+                    <p class="treasure-modal-desc" id="tModalDesc">الشرح والنبذة الفنية والتاريخية...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ Registry: sortable / filterable data table ============ -->
+        <section id="archive" class="archive-section" style="padding: 60px 20px; direction: rtl; text-align: right;">
+            <div class="container" style="max-width: 1200px; margin: 0 auto;">
+                <header class="archive-header" style="text-align: center; margin-bottom: 40px;">
+                    <p style="color: #f39c12; font-size: 0.95rem; font-weight: bold; margin-bottom: 5px;">الأرشيف الوطني
+                        الموحد</p>
+                    <h2 style="color: #fff; font-size: 2.3rem; margin: 0 0 10px 0;">سجل المقتنيات الشامل</h2>
+                    <p style="color: #aaa; font-size: 0.95rem;">جدول بيانات منظم يتيح التصفية المتقدمة واستعراض معلومات
+                        المادة والحالة</p>
+                </header>
+
+                <!-- جدول المقتنيات الـ 10 -->
+                <div class="table-responsive" data-aos="fade-right"
+                    style="overflow-x: auto; background: #141414; border: 1px solid #2a2a2a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <table class="archive-table"
+                        style="width: 100%; border-collapse: collapse; color: #fff; font-size: 0.95rem;">
+                        <thead>
+                            <tr style="background: #1f1f1f; border-bottom: 2px solid #333; color: #f39c12;">
+                                <th style="padding: 15px; text-align: center;">رمز القطعة</th>
+                                <th style="padding: 15px; text-align: center;">المعاينة</th>
+                                <th style="padding: 15px; text-align: right;">الاسم والحقبة</th>
+                                <th style="padding: 15px; text-align: right;">المادة والمصدر</th>
+                                <th style="padding: 15px; text-align: center;">حالة العرض</th>
+                                <th style="padding: 15px; text-align: center;">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <!-- 1. قيثارة أور الذهبية -->
+                            <tr style="border-bottom: 1px solid #282828; transition: 0.2s;"
+                                onmouseover="this.style.background='#1a1a1a'"
+                                onmouseout="this.style.background='transparent'">
+                                <td style="padding: 12px; text-align: center; color: #f39c12; font-weight: bold;">
+                                    IRQ-SUM-001</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <img src="./gold/قيثارة أور الذهبية.jpeg" alt="قيثارة أور"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #444;">
+                                </td>
+                                <td style="padding: 12px;">
+                                    <strong style="color: #fff; display: block;">قيثارة أور الذهبية</strong>
+                                    <span style="color: #888; font-size: 0.82rem;">الحضارة السومرية (2500 ق.م)</span>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span>ذهب، لازورد، خشب</span><br>
+                                    <span style="color: #888; font-size: 0.82rem;">المقابر الملكية في أور</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span
+                                        style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #2ecc71;">معروضة
+                                        بالقاعة</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <button class="btn-detail" onclick="openArchiveModal(this)" data-code="IRQ-SUM-001"
+                                        data-img="./gold/قيثارة أور الذهبية.jpeg" data-title="قيثارة أور الذهبية"
+                                        data-period="الحضارة السومرية (حوالي 2500 ق.م)"
+                                        data-material="ذهب خالص، حجر اللازورد، خشب نادِر"
+                                        data-source="المقابر الملكية في أور (المتحف العراقي)"
+                                        data-status="معروضة بالقاعة السومرية"
+                                        data-desc="واحدة من أقدم الآلات الموسيقية الوترية المكتشفة في التاريخ البشري، تتميز برأس ثور من الذهب الجذاب وجسم مطعم باللازورد والصدف."
+                                        style="background: transparent; border: 1px solid #f39c12; color: #f39c12; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s;">
+                                        تفاصيل
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- 2. خوذة مسكالمدغ -->
+                            <tr style="border-bottom: 1px solid #282828; transition: 0.2s;"
+                                onmouseover="this.style.background='#1a1a1a'"
+                                onmouseout="this.style.background='transparent'">
+                                <td style="padding: 12px; text-align: center; color: #f39c12; font-weight: bold;">
+                                    IRQ-SUM-002</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <img src="./gold/images (1).jpeg" alt="خوذة مسكالمدغ"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #444;">
+                                </td>
+                                <td style="padding: 12px;">
+                                    <strong style="color: #fff; display: block;">خوذة الملك مسكالمدغ</strong>
+                                    <span style="color: #888; font-size: 0.82rem;">السلالة السومرية الأولى (2600
+                                        ق.م)</span>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span>ذهب خالص (سبائك مصقولة)</span><br>
+                                    <span style="color: #888; font-size: 0.82rem;">أور - ذي قار</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span
+                                        style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #2ecc71;">معروضة
+                                        بالقاعة</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <button class="btn-detail" onclick="openArchiveModal(this)" data-code="IRQ-SUM-002"
+                                        data-img="./gold/images (1).jpeg" data-title="خوذة الملك مسكالمدغ"
+                                        data-period="السلالة السومرية الأولى (2600 ق.م)"
+                                        data-material="ذهب خالص 24 قيراط" data-source="مقبرة مسكالمدغ - أور"
+                                        data-status="معروضة بالخزينة الملكية"
+                                        data-desc="تحفة ذهبية على شكل خصلات شعر مموجة بدقة فائقة، تعكس الهيبة الملكية والتطور الصياغي الملكي السومري."
+                                        style="background: transparent; border: 1px solid #f39c12; color: #f39c12; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s;">
+                                        تفاصيل
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- 3. الثور المجنح (لاماسو) -->
+                            <tr style="border-bottom: 1px solid #282828; transition: 0.2s;"
+                                onmouseover="this.style.background='#1a1a1a'"
+                                onmouseout="this.style.background='transparent'">
+                                <td style="padding: 12px; text-align: center; color: #f39c12; font-weight: bold;">
+                                    IRQ-ASY-003</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <img src="./gold/images (6).jpeg" alt="الثور المجنح"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #444;">
+                                </td>
+                                <td style="padding: 12px;">
+                                    <strong style="color: #fff; display: block;">الثور المجنح (لاماسو)</strong>
+                                    <span style="color: #888; font-size: 0.82rem;">الحضارة الآشورية (721 ق.م)</span>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span>حجر الجبس والألباستر</span><br>
+                                    <span style="color: #888; font-size: 0.82rem;">خورسباد / نينوى</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span
+                                        style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #2ecc71;">معروضة
+                                        بالقاعة</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <button class="btn-detail" onclick="openArchiveModal(this)" data-code="IRQ-ASY-003"
+                                        data-img="./gold/images (6).jpeg" data-title="الثور المجنح (لاماسو)"
+                                        data-period="العصر الآشوري الحديث (القرن 8 ق.م)"
+                                        data-material="حجر الجبس الألباستري الضخم"
+                                        data-source="قصر سرجون الثاني - دور شروكين" data-status="معروض بالجناح الآشوري"
+                                        data-desc="تمثال حارس حامي بـ 5 أرجل ليظهر واقفا من الأمام ومتحركاً من الجانب، يجمع القوة البدنيه للثور والحكمة البشرية."
+                                        style="background: transparent; border: 1px solid #f39c12; color: #f39c12; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s;">
+                                        تفاصيل
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- 4. مسلة حمورابي -->
+                            <tr style="border-bottom: 1px solid #282828; transition: 0.2s;"
+                                onmouseover="this.style.background='#1a1a1a'"
+                                onmouseout="this.style.background='transparent'">
+                                <td style="padding: 12px; text-align: center; color: #f39c12; font-weight: bold;">
+                                    IRQ-BAB-004</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <img src="./gold/images (12).jpeg" alt="مسلة حمورابي"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #444;">
+                                </td>
+                                <td style="padding: 12px;">
+                                    <strong style="color: #fff; display: block;">مسلة شريعة حمورابي</strong>
+                                    <span style="color: #888; font-size: 0.82rem;">الإمبراطورية البابلية القديمة (1750
+                                        ق.م)</span>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span>حجر البازلت الأسود</span><br>
+                                    <span style="color: #888; font-size: 0.82rem;">مدينة بابل الأثرية</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span
+                                        style="background: rgba(241, 196, 15, 0.15); color: #f1c40f; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #f1c40f;">نسخة
+                                        طبق الأصل</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <button class="btn-detail" onclick="openArchiveModal(this)" data-code="IRQ-BAB-004"
+                                        data-img="./gold/images (12).jpeg" data-title="مسلة شريعة حمورابي"
+                                        data-period="العصر البابلي القديم (1792-1750 ق.م)"
+                                        data-material="حجر البازلت الأسود الصلب" data-source="العاصمة بابل"
+                                        data-status="نسخة متحفية معروضة"
+                                        data-desc="أول وثيقة تشريعية متكاملة ومكتوبة بالخط المسماري تضم 282 قانوناً ينظم أحكام العدالة والعمل والمجتمع."
+                                        style="background: transparent; border: 1px solid #f39c12; color: #f39c12; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s;">
+                                        تفاصيل
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- 5. كنز نمرود الذهبي -->
+                            <tr style="border-bottom: 1px solid #282828; transition: 0.2s;"
+                                onmouseover="this.style.background='#1a1a1a'"
+                                onmouseout="this.style.background='transparent'">
+                                <td style="padding: 12px; text-align: center; color: #f39c12; font-weight: bold;">
+                                    IRQ-ASY-005</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <img src="./gold/images (4).jpeg" alt="كنز نمرود"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #444;">
+                                </td>
+                                <td style="padding: 12px;">
+                                    <strong style="color: #fff; display: block;">مجوهرات كنز نمرود</strong>
+                                    <span style="color: #888; font-size: 0.82rem;">الآشورية الحديثة (القرن 8 ق.م)</span>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span>ذهب، مرجان، عقيق، لازورد</span><br>
+                                    <span style="color: #888; font-size: 0.82rem;">المقابر الملكية بالنمروذ</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span
+                                        style="background: rgba(231, 76, 60, 0.15); color: #e74c3c; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #e74c3c;">في
+                                        المخزن المحصن</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <button class="btn-detail" onclick="openArchiveModal(this)" data-code="IRQ-ASY-005"
+                                        data-img="./gold/images (4).jpeg" data-title="مجوهرات كنز نمرود الملكي"
+                                        data-period="الإمبراطورية الآشورية الحديثة"
+                                        data-material="ذهب خالص وأحجار كريمة نادرة"
+                                        data-source="القصر الشمالي الغربي - نمرود"
+                                        data-status="محفوظ في خزائن البنك المركزي / المتحف"
+                                        data-desc="تعد أروع مجموعة مجوهرات ملكية آشورية مكتشفة وتضم التاج الملكي الذهبي وأساور مطعمة باللازورد والعقيق."
+                                        style="background: transparent; border: 1px solid #f39c12; color: #f39c12; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s;">
+                                        تفاصيل
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- 6. قناع فتاة الوركاء -->
+                            <tr style="border-bottom: 1px solid #282828; transition: 0.2s;"
+                                onmouseover="this.style.background='#1a1a1a'"
+                                onmouseout="this.style.background='transparent'">
+                                <td style="padding: 12px; text-align: center; color: #f39c12; font-weight: bold;">
+                                    IRQ-SUM-006</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <img src="./gold/images (10).jpeg" alt="فتاة الوركاء"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #444;">
+                                </td>
+                                <td style="padding: 12px;">
+                                    <strong style="color: #fff; display: block;">قناع أوروك (فتاة الوركاء)</strong>
+                                    <span style="color: #888; font-size: 0.82rem;">عصر الوركاء (3100 ق.م)</span>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span>رخام مرخمي أبيض</span><br>
+                                    <span style="color: #888; font-size: 0.82rem;">مدينة الوركاء الأثرية</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span
+                                        style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #2ecc71;">معروضة
+                                        بالقاعة</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <button class="btn-detail" onclick="openArchiveModal(this)" data-code="IRQ-SUM-006"
+                                        data-img="./gold/images (10).jpeg" data-title="قناع أوروك (فتاة الوركاء)"
+                                        data-period="حقبة الوركاء السومرية (3100 ق.م)"
+                                        data-material="حجر الرخام الأبيض الصافي" data-source="معبد إنانا - الوركاء"
+                                        data-status="معروضة بالقاعة السومرية"
+                                        data-desc="تلقب بـ 'موناليزا السومرية'، وهي من أقدم المنحوتات البوتريتية لوجه بشري ملامحه ناعمة ومحفورة بعناية."
+                                        style="background: transparent; border: 1px solid #f39c12; color: #f39c12; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s;">
+                                        تفاصيل
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- 7. تمثال الكاتب إيبيه إيل -->
+                            <tr style="border-bottom: 1px solid #282828; transition: 0.2s;"
+                                onmouseover="this.style.background='#1a1a1a'"
+                                onmouseout="this.style.background='transparent'">
+                                <td style="padding: 12px; text-align: center; color: #f39c12; font-weight: bold;">
+                                    IRQ-SUM-007</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <img src="./gold/images (7).jpeg" alt="تمثال إيبيه إيل"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #444;">
+                                </td>
+                                <td style="padding: 12px;">
+                                    <strong style="color: #fff; display: block;">تمثال إيبيه إيل (الكاتب
+                                        السومري)</strong>
+                                    <span style="color: #888; font-size: 0.82rem;">السومري المبكر (2400 ق.م)</span>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span>ألباستر، لازورد، صدف</span><br>
+                                    <span style="color: #888; font-size: 0.82rem;">مملكة ماري القديمة</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span
+                                        style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #2ecc71;">معروضة
+                                        بالقاعة</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <button class="btn-detail" onclick="openArchiveModal(this)" data-code="IRQ-SUM-007"
+                                        data-img="./gold/images (7).jpeg" data-title="تمثال إيبيه إيل السومري"
+                                        data-period="العصر السومري المبكر (2400 ق.م)"
+                                        data-material="مرمر ألباستر زاهي مع مطعم بالصدف"
+                                        data-source="معبد عشتار - مملكة ماري" data-status="معروض بالجناح السومري"
+                                        data-desc="تمثال جالس في وضعية التعبد والابتهال، يرتدي تنورة سومرية تقليدية بعيون زرقاء مطعمة بحجر اللازورد."
+                                        style="background: transparent; border: 1px solid #f39c12; color: #f39c12; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s;">
+                                        تفاصيل
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- 8. الدينار العباسي الذهبي -->
+                            <tr style="border-bottom: 1px solid #282828; transition: 0.2s;"
+                                onmouseover="this.style.background='#1a1a1a'"
+                                onmouseout="this.style.background='transparent'">
+                                <td style="padding: 12px; text-align: center; color: #f39c12; font-weight: bold;">
+                                    IRQ-ISL-008</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <img src="./gold/12.jpeg" alt="الدينار العباسي"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #444;">
+                                </td>
+                                <td style="padding: 12px;">
+                                    <strong style="color: #fff; display: block;">الدينار العباسي الذهبي</strong>
+                                    <span style="color: #888; font-size: 0.82rem;">العصر العباسي (786 م - عهد هارون
+                                        الرشيد)</span>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span>ذهب خالص 22 قيراط</span><br>
+                                    <span style="color: #888; font-size: 0.82rem;">دار السكة - بغداد السلام</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span
+                                        style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #2ecc71;">معروضة
+                                        بالقاعة</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <button class="btn-detail" onclick="openArchiveModal(this)" data-code="IRQ-ISL-008"
+                                        data-img="./gold/12.jpeg" data-title="الدينار العباسي الذهبي"
+                                        data-period="العصر الإسلامي العباسي (القرن 8 الميلادي)"
+                                        data-material="سبك الذهب الخالص" data-source="مدينة السلام - بغداد"
+                                        data-status="معروض بالقاعة الإسلامية"
+                                        data-desc="عملة نقدية ذهبية مسكوك عليها آيات قرآنية بالخط الكوفي البغدادي الشهير، تمثل ذروة الاقتصاد والازدهار الإسلامي."
+                                        style="background: transparent; border: 1px solid #f39c12; color: #f39c12; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s;">
+                                        تفاصيل
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- 9. إناء الوركاء السومري -->
+                            <tr style="border-bottom: 1px solid #282828; transition: 0.2s;"
+                                onmouseover="this.style.background='#1a1a1a'"
+                                onmouseout="this.style.background='transparent'">
+                                <td style="padding: 12px; text-align: center; color: #f39c12; font-weight: bold;">
+                                    IRQ-SUM-009</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <img src="./gold/images (16).jpeg" alt="إناء الوركاء"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #444;">
+                                </td>
+                                <td style="padding: 12px;">
+                                    <strong style="color: #fff; display: block;">إناء الوركاء النحتي</strong>
+                                    <span style="color: #888; font-size: 0.82rem;">حقبة أوروك السومرية (3200 ق.م)</span>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span>مرمر أبيض حليبي</span><br>
+                                    <span style="color: #888; font-size: 0.82rem;">الوركاء - المثنى</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span
+                                        style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #2ecc71;">معروضة
+                                        بالقاعة</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <button class="btn-detail" onclick="openArchiveModal(this)" data-code="IRQ-SUM-009"
+                                        data-img="./gold/images (16).jpeg" data-title="إناء الوركاء النحتي"
+                                        data-period="حقبة أوروك القديمة (3200 ق.م)" data-material="حجر المرمر الحليبي"
+                                        data-source="معبد الوركاء الكبير" data-status="معروض بالقاعة السومرية"
+                                        data-desc="إناء منحوت بنقوش بارزة مقسمة لثلاث طبقات تجسد دورة الزراعة وتقديم القرابين للآلهة في أقدم احتفال مدون."
+                                        style="background: transparent; border: 1px solid #f39c12; color: #f39c12; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s;">
+                                        تفاصيل
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- 10. تمثال أسد بابل -->
+                            <tr style="border-bottom: 1px solid #282828; transition: 0.2s;"
+                                onmouseover="this.style.background='#1a1a1a'"
+                                onmouseout="this.style.background='transparent'">
+                                <td style="padding: 12px; text-align: center; color: #f39c12; font-weight: bold;">
+                                    IRQ-BAB-010</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <img src="./gold/images (14).jpeg" alt="أسد بابل"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #444;">
+                                </td>
+                                <td style="padding: 12px;">
+                                    <strong style="color: #fff; display: block;">تمثال أسد بابل البازلتي</strong>
+                                    <span style="color: #888; font-size: 0.82rem;">البابلية الحديثة (605 - 562
+                                        ق.م)</span>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span>حجر البازلت الصلب</span><br>
+                                    <span style="color: #888; font-size: 0.82rem;">قصر نبوخذ نصر - بابل</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span
+                                        style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #2ecc71;">معروض
+                                        بالموقع الأثري</span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <button class="btn-detail" onclick="openArchiveModal(this)" data-code="IRQ-BAB-010"
+                                        data-img="./gold/images (14).jpeg" data-title="تمثال أسد بابل الحجري"
+                                        data-period="عصر بابل الحديث (عهد نبوخذ نصر)" data-material="حجر البازلت الأسود"
+                                        data-source="مدينة بابل الأثرية" data-status="معروض بالمنتزه الأثري بـ بابل"
+                                        data-desc="تمثال ضخم يجسد أسداً مهيباً يدوس رجلاً، يمثل قوة وبأس بابل العسكرية وسيطرتها الحضارية."
+                                        style="background: transparent; border: 1px solid #f39c12; color: #f39c12; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s;">
+                                        تفاصيل
+                                    </button>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- نافذة عرض تفاصيل المقتنى من الأرشيف (Modal) -->
+        <div id="archiveModal" data-aos="fade-up"
+            style="display: none; position: fixed; z-index: 3500; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); backdrop-filter: blur(8px); justify-content: center; align-items: center; padding: 20px;">
+            <div
+                style="background: #181818; border: 1px solid #333; border-radius: 16px; max-width: 900px; width: 90%; display: grid; grid-template-columns: 1.2fr 1fr; overflow: hidden; position: relative; direction: rtl; box-shadow: 0 25px 60px rgba(0,0,0,0.9);">
+                <button onclick="closeArchiveModal()"
+                    style="position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.1); color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 1.3rem; cursor: pointer; z-index: 10;">×</button>
+                <div
+                    style="background: #000; display: flex; align-items: center; justify-content: center; max-height: 500px;">
+                    <img id="archImg" src="" alt="صورة المقتنى" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <div
+                    style="padding: 35px 25px; display: flex; flex-direction: column; justify-content: center; text-align: right;">
+                    <span id="archCode"
+                        style="color: #f39c12; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">-</span>
+                    <h2 id="archTitle" style="color: #fff; margin: 0 0 15px 0; font-size: 1.8rem;">-</h2>
+                    <div
+                        style="border-bottom: 1px solid #2a2a2a; padding-bottom: 12px; margin-bottom: 15px; font-size: 0.95rem;">
+                        <p style="color: #aaa; margin: 5px 0;">الحقبة: <span id="archPeriod"
+                                style="color: #fff; font-weight: bold;">-</span></p>
+                        <p style="color: #aaa; margin: 5px 0;">المادة: <span id="archMaterial"
+                                style="color: #fff; font-weight: bold;">-</span></p>
+                        <p style="color: #aaa; margin: 5px 0;">المصدر: <span id="archSource"
+                                style="color: #fff; font-weight: bold;">-</span></p>
+                        <p style="color: #aaa; margin: 5px 0;">حالة العرض: <span id="archStatus"
+                                style="color: #2ecc71; font-weight: bold;">-</span></p>
+                    </div>
+                    <p id="archDesc" style="color: #ddd; line-height: 1.7; font-size: 1rem; margin: 0;">-</p>
+                </div>
+            </div>
+        </div>
+        <!-- ============ About + contact ============ -->
+        <section class="section" id="about" aria-labelledby="about-title">
+            <div class="container about" data-aos="fade-up">
+                <h2 class="section__title" id="about-title">عن المتحف</h2>
+                <p class="about__text">
+                    تأسس متحف ليكون منارة ثقافية تجمع بين عراقة الماضي وإبداع الحاضر. نسعى دائماً لتوفير
+                    بيئة ملهمة للزوار من مختلف أنحاء العالم عبر تنظيم المعارض وتطوير الفنون البصرية والرقمية.
+                </p>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- ============ Footer ============ -->
+    <footer class="site-footer">
+        <div class="container site-footer__inner">
+            <p>&copy; <span id="year">2026</span> متحف للفنون والتاريخ. جميع الحقوق محفوظة.</p>
+            <a class="btn-link" href="#hero">العودة إلى الأعلى</a>
+        </div>
+    </footer>
+
+    <!-- =====================================================================
+         Dialogs (native <dialog>: focus trap + Esc handled by the browser)
+         1. exhibition details   2. artifact details   3. zoom lightbox
+         ===================================================================== -->
+
+    <!-- 1. Exhibition details -->
+    <dialog class="modal" id="exhibition-modal" aria-labelledby="modal-title" aria-describedby="modal-desc">
+        <button class="modal__close" type="button" data-modal-close aria-label="إغلاق النافذة">
+            <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="M4 4l12 12M16 4L4 16" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" />
+            </svg>
+        </button>
+
+        <div class="modal__inner">
+            <div class="modal__media">
+                <button class="zoom-trigger" id="modal-zoom" type="button" aria-haspopup="dialog"
+                    aria-label="تكبير الصورة">
+                    <img id="modal-image" alt="" width="1000" height="1000" decoding="async">
+                    <span class="zoom-trigger__icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 20 20" focusable="false">
+                            <circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+                            <path d="M13 13l5 5M8.5 6v5M6 8.5h5" fill="none" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" />
+                        </svg>
+                    </span>
+                </button>
+            </div>
+            <div class="modal__body">
+                <p class="modal__hall" id="modal-hall"></p>
+                <h2 class="modal__title" id="modal-title"></h2>
+                <p class="modal__desc" id="modal-desc"></p>
+
+                <dl class="meta">
+
+
+                    <h3 class="modal__subtitle">أبرز ما في المعرض</h3>
+                    <ul class="check-list" id="modal-highlights"></ul>
+
+                    <div class="modal__pager" role="group" aria-label="التنقل بين القاعات">
+                        <button class="btn-link" id="modal-prev" type="button">القاعة السابقة</button>
+                        <span class="modal__count" id="modal-count" aria-live="polite"></span>
+                        <button class="btn-link" id="modal-next" type="button">القاعة التالية</button>
+                    </div>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- 2. Artifact details -->
+    <dialog class="modal modal--artifact" id="artifact-modal" aria-labelledby="artifact-title"
+        aria-describedby="artifact-desc">
+        <button class="modal__close" type="button" data-modal-close aria-label="إغلاق النافذة">
+            <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="M4 4l12 12M16 4L4 16" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" />
+            </svg>
+        </button>
+
+        <div class="modal__inner">
+            <div class="modal__media">
+                <button class="zoom-trigger" id="artifact-zoom" type="button" aria-haspopup="dialog"
+                    aria-label="تكبير الصورة">
+                    <img id="artifact-image" alt="" width="1000" height="1000" decoding="async">
+                    <span class="zoom-trigger__icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 20 20" focusable="false">
+                            <circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+                            <path d="M13 13l5 5M8.5 6v5M6 8.5h5" fill="none" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" />
+                        </svg>
+                    </span>
+                </button>
+            </div>
+            <div class="modal__body">
+                <p class="modal__hall" id="artifact-code"></p>
+                <h2 class="modal__title" id="artifact-title"></h2>
+                <p class="modal__desc" id="artifact-desc"></p>
+
+                <dl class="specs" id="artifact-specs"></dl>
+
+                <div class="modal__pager" role="group" aria-label="التنقل بين القطع">
+                    <button class="btn-link" id="artifact-prev" type="button">القطعة السابقة</button>
+                    <span class="modal__count" id="artifact-count" aria-live="polite"></span>
+                    <button class="btn-link" id="artifact-next" type="button">القطعة التالية</button>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- 3. Zoom lightbox (wheel / pinch / drag / double-click / keyboard) -->
+    <dialog class="lightbox" id="lightbox" aria-label="عرض الصورة بالحجم الكامل">
+        <div class="lightbox__stage" id="lightbox-stage">
+            <img id="lightbox-image" alt="" draggable="false">
+        </div>
+
+        <p class="lightbox__caption" id="lightbox-caption"></p>
+
+        <button class="modal__close" type="button" data-modal-close aria-label="إغلاق العرض المكبّر">
+            <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="M4 4l12 12M16 4L4 16" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" />
+            </svg>
+        </button>
+
+        <div class="lightbox__toolbar" role="toolbar" aria-label="أدوات التكبير" dir="ltr">
+            <button type="button" id="lightbox-out" aria-label="تصغير">−</button>
+            <output id="lightbox-zoom" aria-live="off">100%</output>
+            <button type="button" id="lightbox-in" aria-label="تكبير">+</button>
+            <button type="button" id="lightbox-reset" class="lightbox__reset"
+                aria-label="ملاءمة الصورة للشاشة">ملاءمة</button>
+        </div>
+    </dialog>
+
+    <!-- ES module: deferred by default, so it never blocks rendering -->
+    <script type="module" src="script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const items = document.querySelectorAll(".carousel__item");
+            const dots = document.querySelectorAll(".carousel__dot");
+            const prevBtn = document.getElementById("prev-btn");
+            const nextBtn = document.getElementById("next-btn");
+
+            let currentIndex = 0;
+            const totalItems = items.length;
+
+            function updateCarousel(index) {
+                items.forEach(item => {
+                    item.classList.remove("active", "prev", "next");
+                });
+
+                dots.forEach(dot => {
+                    dot.classList.remove("active");
+                });
+
+                currentIndex = (index + totalItems) % totalItems;
+
+                let prevIndex = (currentIndex - 1 + totalItems) % totalItems;
+                let nextIndex = (currentIndex + 1) % totalItems;
+
+                items[currentIndex].classList.add("active");
+                items[prevIndex].classList.add("prev");
+                items[nextIndex].classList.add("next");
+
+                dots[currentIndex].classList.add("active");
+            }
+
+            nextBtn.addEventListener("click", () => {
+                updateCarousel(currentIndex + 1);
+            });
+
+            prevBtn.addEventListener("click", () => {
+                updateCarousel(currentIndex - 1);
+            });
+
+            dots.forEach((dot, idx) => {
+                dot.addEventListener("click", () => {
+                    updateCarousel(idx);
+                });
+            });
+        });
+        // فتح النافذة المنبثقة وتعبئة تفاصيل الكنز
+        function openTreasureModal(card) {
+            const modal = document.getElementById("treasureModal");
+            document.getElementById("tModalImg").src = card.getAttribute("data-img");
+            document.getElementById("tModalTitle").innerText = card.getAttribute("data-title");
+            document.getElementById("tModalPeriod").innerText = card.getAttribute("data-period");
+            document.getElementById("tModalLocation").innerText = card.getAttribute("data-location");
+            document.getElementById("tModalDesc").innerText = card.getAttribute("data-desc");
+
+            modal.classList.add("active");
+            document.body.style.overflow = "hidden"; // منع التمرير الخلفي
+        }
+
+        // إغلاق النافذة
+        function closeTreasureModal() {
+            const modal = document.getElementById("treasureModal");
+            modal.classList.remove("active");
+            document.body.style.overflow = "auto";
+        }
+
+        // إغلاق النافذة عند الضغط خارج صندوق المحتوى
+        function closeTreasureModalOutside(event) {
+            const modal = document.getElementById("treasureModal");
+            if (event.target === modal) {
+                closeTreasureModal();
+            }
+        }
+        function openArchiveModal(btn) {
+            const modal = document.getElementById("archiveModal");
+            document.getElementById("archCode").innerText = btn.getAttribute("data-code");
+            document.getElementById("archImg").src = btn.getAttribute("data-img");
+            document.getElementById("archTitle").innerText = btn.getAttribute("data-title");
+            document.getElementById("archPeriod").innerText = btn.getAttribute("data-period");
+            document.getElementById("archMaterial").innerText = btn.getAttribute("data-material");
+            document.getElementById("archSource").innerText = btn.getAttribute("data-source");
+            document.getElementById("archStatus").innerText = btn.getAttribute("data-status");
+            document.getElementById("archDesc").innerText = btn.getAttribute("data-desc");
+
+            modal.style.display = "flex";
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeArchiveModal() {
+            const modal = document.getElementById("archiveModal");
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+        document.querySelector('a[href="#archive"]').addEventListener('click', function (e) {
+            e.preventDefault();
+            document.getElementById('archive').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800, // سرعة الأنيميشن بالمللي ثانية
+            once: true     // يتم تشغيل الأنيميشن مرة واحدة عند الظهور
+        });
+    </script>
+    <script>
+        window.addEventListener('scroll', function () {
+            const nav = document.querySelector('.navbar');
+            if (nav) {
+                if (window.scrollY > 50) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            }
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</body>
+
+</html>
