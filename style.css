@@ -4271,10 +4271,6 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-stopped { overflow: hidden; }
 .lenis.lenis-scrolling iframe { pointer-events: none; }
 
-/* ---------- Hero: choreography start state ----------
-   Text is hidden ONLY while the page is waiting for GSAP. A 3.4s CSS failsafe reveals it
-   regardless, and html.fx-hero-fallback (set by JS if the CDN is unreachable) replays the
-   original CSS entrance instead. */
 @keyframes fx-hero-failsafe { to { opacity: 1; } }
 
 @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
