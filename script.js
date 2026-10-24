@@ -1510,4 +1510,408 @@ function init() {
     initCollection({ reveal, lightbox }).catch((error) => console.error('[museum] collection failed:', error));
 }
 
+/* ==========================================================================
+   MOTION UPGRADE  (appended; runs before init() and never touches the HTML source)
+   Only CSSOM writes (style.setProperty / classList) – strict-CSP friendly, no libraries.
+   ========================================================================== */
+function initMotionUpgrade() {
+    const root = document.documentElement;
+    const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const fineMq = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const raf = window.requestAnimationFrame.bind(window);
+
+    // Let the CSS know AOS really loaded, so its spring overrides can never strand content
+    if (window.AOS) root.classList.add('fx-aos');
+
+    /* ---- Archive modal: play an exit animation before the original close function hides it ---- */
+    const originalClose = window.closeArchiveModal;
+    if (typeof originalClose === 'function') {
+        window.closeArchiveModal = function () {
+            const modal = document.getElementById('archiveModal');
+            if (!modal || reduceMq.matches || modal.classList.contains('fx-closing')) return originalClose();
+            modal.classList.add('fx-closing');
+            setTimeout(() => {
+                originalClose();
+                modal.classList.remove('fx-closing');
+            }, 260);
+        };
+    }
+
+    if (reduceMq.matches) return; // everything below is purely decorative motion
+
+    /* ---- AOS stagger: cards in the same grid row cascade; delay is cleared so hover stays instant ---- */
+    if (window.AOS) {
+        const grid = document.getElementById('treasure-grid');
+        if (grid) {
+            const cols = Math.max(1, getComputedStyle(grid).gridTemplateColumns.split(' ').length);
+            grid.querySelectorAll('.treasure-card[data-aos]').forEach((card, i) => {
+                card.style.transitionDelay = `${(i % cols) * 90}ms`;
+                card.addEventListener(
+                    'transitionend',
+                    (e) => e.propertyName === 'opacity' && card.style.removeProperty('transition-delay'),
+                    { once: false },
+                );
+            });
+        }
+    }
+
+    /* ---- Parallax: hero video + exhibition images, one rAF per scroll frame ---- */
+    const hero = document.querySelector('.hero');
+    const heroBg = hero && hero.querySelector('.hero__bg');
+    const heroContent = hero && hero.querySelector('.hero__content');
+    const galleryImgs = Array.from(document.querySelectorAll('.exhibition__image-link img'));
+    let heroH = hero ? hero.offsetHeight : 0;
+    let heroVisible = true;
+    let ticking = false;
+
+    const frame = () => {
+        ticking = false;
+        const vh = window.innerHeight;
+        if (hero && heroVisible) {
+            const p = Math.min(Math.max(window.scrollY / (heroH || vh), 0), 1.2);
+            if (heroBg) heroBg.style.setProperty('--hero-y', `${(p * heroH * 0.18).toFixed(1)}px`);
+            if (heroContent) {
+                heroContent.style.setProperty('--hero-cy', `${(p * -42).toFixed(1)}px`);
+                heroContent.style.setProperty('--hero-o', Math.max(0, 1 - p * 1.15).toFixed(3));
+            }
+        }
+        // read all rects first, then write (no layout thrash)
+        const reads = galleryImgs.map((img) => img.parentElement.getBoundingClientRect());
+        galleryImgs.forEach((img, i) => {
+            const r = reads[i];
+            if (r.bottom < -80 || r.top > vh + 80) return;
+            const n = ((r.top + r.height / 2) / vh - 0.5) * 2; // -1 … 1
+            img.style.setProperty('--py', `${(n * -16).toFixed(1)}px`);
+        });
+    };
+    const requestFrame = () => {
+        if (!ticking) {
+            ticking = true;
+            raf(frame);
+        }
+    };
+    window.addEventListener('scroll', requestFrame, { passive: true });
+    window.addEventListener('resize', () => {
+        heroH = hero ? hero.offsetHeight : 0;
+        requestFrame();
+    });
+    if (hero && 'IntersectionObserver' in window) {
+        new IntersectionObserver(([entry]) => {
+            heroVisible = entry.isIntersecting;
+            if (heroBg) heroBg.style.willChange = heroVisible ? 'translate' : 'auto';
+        }).observe(hero);
+    }
+    requestFrame();
+
+    /* ---- 3D tilt (cards, treasure cards, exhibition images) ---- */
+    if (fineMq.matches) {
+        const SEL = '.card[data-id], .treasure-card, .exhibition__image-link';
+        const MAX_DEG = 7;
+        let el = null;
+        let rect = null;
+        let tx = 0;
+        let ty = 0;
+        let cx = 0;
+        let cy = 0;
+        let gx = 0;
+        let gy = 0;
+        let looping = false;
+
+        const loop = () => {
+            if (!el) { looping = false; return; }
+            // ease toward the pointer so the card feels weighty rather than glued
+            cx += (tx - cx) * 0.18;
+            cy += (ty - cy) * 0.18;
+            const mag = Math.hypot(cx, cy);
+            el.style.setProperty('rotate', mag < 0.002 ? '0 0 1 0deg' : `${-cy} ${cx} 0 ${(mag * MAX_DEG * 2).toFixed(2)}deg`);
+            // gravitate toward the cursor + move the glare (CSS reads these as `translate`)
+            el.style.setProperty('--mgx', `${(cx * 18).toFixed(1)}px`);
+            el.style.setProperty('--mgy', `${(cy * 18).toFixed(1)}px`);
+            el.style.setProperty('--gx', `${gx.toFixed(1)}px`);
+            el.style.setProperty('--gy', `${gy.toFixed(1)}px`);
+            raf(loop);
+        };
+        const leave = () => {
+            if (!el) return;
+            el.classList.remove('fx-tilting');
+            el.style.removeProperty('rotate'); // base rule springs it back to rest
+            el.style.removeProperty('--mgx');
+            el.style.removeProperty('--mgy');
+            el = null;
+        };
+        document.addEventListener(
+            'pointermove',
+            (e) => {
+                if (e.pointerType !== 'mouse') return;
+                const target = e.target.closest ? e.target.closest(SEL) : null;
+                if (target !== el) {
+                    leave();
+                    if (!target) return;
+                    el = target;
+                    rect = el.getBoundingClientRect(); // measured at rest, before any tilt
+                    cx = cy = 0;
+                    el.classList.add('fx-tilting');
+                    if (!looping) { looping = true; raf(loop); }
+                }
+                gx = e.clientX - rect.left;
+                gy = e.clientY - rect.top;
+                tx = Math.min(Math.max((e.clientX - rect.left) / rect.width - 0.5, -0.5), 0.5);
+                ty = Math.min(Math.max((e.clientY - rect.top) / rect.height - 0.5, -0.5), 0.5);
+            },
+            { passive: true },
+        );
+        document.addEventListener('pointerleave', leave);
+        window.addEventListener('scroll', leave, { passive: true }); // cached rect is stale after scrolling
+        window.addEventListener('blur', leave);
+    }
+
+    /* ---- Table rows: soft highlight follows the pointer ---- */
+    let rowRaf = 0;
+    document.addEventListener(
+        'pointermove',
+        (e) => {
+            const row = e.target.closest ? e.target.closest('.table-row, .archive-table tbody tr') : null;
+            if (!row || rowRaf) return;
+            const x = e.clientX;
+            rowRaf = raf(() => {
+                rowRaf = 0;
+                row.style.setProperty('--mx', `${x - row.getBoundingClientRect().left}px`);
+            });
+        },
+        { passive: true },
+    );
+
+    /* ---- Button ripple (WAAPI animating registered custom properties; no DOM nodes added) ---- */
+    const RIPPLE = '.btn, .btn-detail, .action-btn, .exhibition__btn, .t-filter-btn, .nav--prev, .nav--next, .modal__close, .treasure-close-btn';
+    document.addEventListener(
+        'pointerdown',
+        (e) => {
+            const b = e.target.closest ? e.target.closest(RIPPLE) : null;
+            if (!b || b.disabled || !b.animate) return;
+            const r = b.getBoundingClientRect();
+            const x = e.clientX - r.left;
+            const y = e.clientY - r.top;
+            const reach = Math.hypot(Math.max(x, r.width - x), Math.max(y, r.height - y));
+            b.style.setProperty('--rx', `${x}px`);
+            b.style.setProperty('--ry', `${y}px`);
+            b.classList.add('fx-rip');
+            const anim = b.animate(
+                [{ '--rip-r': '0px', '--rip-o': 0.38 }, { '--rip-r': `${reach}px`, '--rip-o': 0 }],
+                { duration: 650, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+            );
+            const done = () => b.classList.remove('fx-rip');
+            anim.onfinish = done;
+            anim.oncancel = done;
+        },
+        { passive: true },
+    );
+}
+
+try {
+    initMotionUpgrade();
+} catch (error) {
+    console.error('[museum] motion upgrade failed:', error);
+}
+
+
+/* ==========================================================================
+   CINEMATIC LAYER  (hero choreography, cursor lighting, magnetism, inertia scroll)
+   GSAP + ScrollTrigger + Lenis are loaded as ES modules from jsDelivr (pinned versions).
+   If the CDN is unreachable or blocked by CSP, everything above still works and the hero
+   falls back to its original CSS entrance.
+   ========================================================================== */
+const CINE_URLS = {
+    gsap: 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js',
+    scrollTrigger: 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js',
+    lenis: 'https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.mjs',
+};
+
+/* --- Library-free: hero cursor parallax + ambient light (rAF lerp, stops when settled) --- */
+function initHeroPointer() {
+    const hero = document.querySelector('.hero');
+    if (!hero || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    let tx = 0, ty = 0, cx = 0, cy = 0; // parallax target / current (-1…1)
+    let tgx = 0, tgy = 0, gx = 0, gy = 0; // light target / current (px inside hero)
+    let seeded = false;
+    let running = false;
+
+    const step = () => {
+        cx += (tx - cx) * 0.07;
+        cy += (ty - cy) * 0.07;
+        gx += (tgx - gx) * 0.12;
+        gy += (tgy - gy) * 0.12;
+        hero.style.setProperty('--hmx', cx.toFixed(3));
+        hero.style.setProperty('--hmy', cy.toFixed(3));
+        hero.style.setProperty('--hgx', `${gx.toFixed(1)}px`);
+        hero.style.setProperty('--hgy', `${gy.toFixed(1)}px`);
+        const settled = Math.abs(tx - cx) + Math.abs(ty - cy) + Math.abs(tgx - gx) + Math.abs(tgy - gy) < 0.01;
+        if (settled) { running = false; return; }
+        requestAnimationFrame(step);
+    };
+    const wake = () => { if (!running) { running = true; requestAnimationFrame(step); } };
+
+    hero.addEventListener(
+        'pointermove',
+        (e) => {
+            if (e.pointerType !== 'mouse') return;
+            const r = hero.getBoundingClientRect();
+            tx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+            ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
+            tgx = e.clientX - r.left;
+            tgy = e.clientY - r.top;
+            if (!seeded) { gx = tgx; gy = tgy; seeded = true; }
+            wake();
+        },
+        { passive: true },
+    );
+    hero.addEventListener('pointerleave', () => { tx = 0; ty = 0; wake(); });
+}
+
+/* --- Library-free: magnetic buttons (CSS transitions spring them back) --- */
+function initMagneticButtons() {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    const SEL = '.btn, .exhibition__btn, .btn-detail, .action-btn, .t-filter-btn, .nav--prev, .nav--next';
+    let current = null;
+    let queued = false;
+    let ex = 0, ey = 0;
+    const release = () => {
+        if (!current) return;
+        current.style.removeProperty('--mgx');
+        current.style.removeProperty('--mgy');
+        current = null;
+    };
+    document.addEventListener(
+        'pointermove',
+        (e) => {
+            if (e.pointerType !== 'mouse') return;
+            const b = e.target.closest ? e.target.closest(SEL) : null;
+            if (b !== current) { release(); current = b; }
+            if (!b || b.disabled) return;
+            ex = e.clientX;
+            ey = e.clientY;
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(() => {
+                queued = false;
+                if (!current) return;
+                const r = current.getBoundingClientRect();
+                const dx = (ex - (r.left + r.width / 2)) * 0.3;
+                const dy = (ey - (r.top + r.height / 2)) * 0.3;
+                current.style.setProperty('--mgx', `${Math.max(-10, Math.min(10, dx)).toFixed(1)}px`);
+                current.style.setProperty('--mgy', `${Math.max(-8, Math.min(8, dy)).toFixed(1)}px`);
+            });
+        },
+        { passive: true },
+    );
+    document.addEventListener('pointerleave', release);
+}
+
+async function initCinematic() {
+    const root = document.documentElement;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    initHeroPointer();
+    initMagneticButtons();
+
+    // Load the libraries; give up (and restore the CSS entrance) if the CDN is slow or blocked
+    let abandoned = false;
+    let mods;
+    try {
+        mods = await Promise.race([
+            Promise.all([import(CINE_URLS.gsap), import(CINE_URLS.scrollTrigger), import(CINE_URLS.lenis)]),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('CDN timeout')), 2800)),
+        ]);
+    } catch (error) {
+        abandoned = true;
+        root.classList.add('fx-hero-fallback');
+        console.warn('[museum] cinematic libraries unavailable, using CSS fallback:', error.message);
+        return;
+    }
+    if (abandoned) return;
+    const gsap = mods[0].gsap || mods[0].default;
+    const ScrollTrigger = mods[1].ScrollTrigger || mods[1].default;
+    const Lenis = mods[2].default;
+    gsap.registerPlugin(ScrollTrigger);
+    root.classList.add('fx-cine');
+
+    /* ---- 1. Hero entrance choreography ----
+       Only elements that carry no CSS individual-transform properties are tweened
+       (GSAP would otherwise fold `translate`/`scale` into `transform` and break the CSS parallax). */
+    const $ = (s) => document.querySelector(s);
+    const title = $('.hero__title');
+    const lead = $('.hero__lead');
+    const actions = $('.hero__actions');
+    const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+    if (title) tl.fromTo(title, { opacity: 0, y: 90, scale: 1.08, filter: 'blur(20px)' }, { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 1.7 }, 0.2);
+    if (lead) tl.fromTo(lead, { opacity: 0, y: 50, filter: 'blur(12px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.4 }, 0.55);
+    if (actions) tl.fromTo(actions, { opacity: 0, y: 44, scale: 0.82 }, { opacity: 1, y: 0, scale: 1, duration: 1.5, ease: 'elastic.out(1, 0.62)' }, 0.9);
+    tl.add(() => gsap.set([title, lead, actions].filter(Boolean), { clearProps: 'filter,transform,willChange' }));
+
+    /* ---- 2. Inertia scrolling (Lenis driven by the GSAP ticker: one rAF loop for everything) ---- */
+    let lenis = null;
+    if (window.matchMedia('(pointer: fine)').matches) {
+        lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9, smoothWheel: true, syncTouch: false });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => lenis.raf(time * 1000));
+        gsap.ticker.lagSmoothing(0);
+
+        // Modals lock page scroll (html.is-locked / body overflow) – hand scrolling back to the browser
+        let stopped = false;
+        const syncLock = () => {
+            const locked = root.classList.contains('is-locked') || document.body.style.overflow === 'hidden';
+            if (locked === stopped) return;
+            stopped = locked;
+            locked ? lenis.stop() : lenis.start();
+        };
+        new MutationObserver(syncLock).observe(root, { attributes: true, attributeFilter: ['class'] });
+        new MutationObserver(syncLock).observe(document.body, { attributes: true, attributeFilter: ['style'] });
+
+        // In-page anchors and the site's own smooth scrollIntoView() calls glide on Lenis' inertia
+        const headerOffset = () => -((document.getElementById('site-header') || {}).offsetHeight || 0);
+        const glide = (target) => lenis.scrollTo(target, { offset: headerOffset(), duration: 1.6, easing: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)) });
+        document.addEventListener(
+            'click',
+            (e) => {
+                const a = e.target.closest && e.target.closest('a[href^="#"]');
+                if (!a || a.classList.contains('skip-link') || a.getAttribute('href').length < 2) return;
+                let target = null;
+                try { target = document.querySelector(a.getAttribute('href')); } catch { /* invalid selector */ }
+                if (!target) return;
+                e.preventDefault();
+                glide(target);
+            },
+            true,
+        );
+        const nativeScrollIntoView = Element.prototype.scrollIntoView;
+        Element.prototype.scrollIntoView = function (arg) {
+            if (arg && typeof arg === 'object' && arg.behavior === 'smooth' && !stopped) return glide(this);
+            return nativeScrollIntoView.call(this, arg);
+        };
+    }
+
+    /* ---- 3. ScrollTrigger: elastic section-heading entrances (AOS-owned blocks are left alone) ---- */
+    const targets = Array.from(
+        document.querySelectorAll('.showcase__header, .section__head > *, .treasured-header > *, .treasured-search-wrapper, .archive-header > *'),
+    ).filter((el) => !el.closest('[data-aos]') && el.getBoundingClientRect().top > window.innerHeight * 0.92);
+    if (targets.length) {
+        gsap.set(targets, { opacity: 0, y: 64, scale: 0.94 });
+        ScrollTrigger.batch(targets, {
+            start: 'top 90%',
+            once: true,
+            batchMax: 4,
+            onEnter: (batch) =>
+                gsap.to(batch, { opacity: 1, y: 0, scale: 1, duration: 1.6, ease: 'elastic.out(1, 0.72)', stagger: 0.12, clearProps: 'transform,willChange', overwrite: true }),
+        });
+    }
+
+    // JSON-built sections change the page height after load – keep trigger positions honest
+    if ('ResizeObserver' in window) {
+        let t = 0;
+        new ResizeObserver(() => { clearTimeout(t); t = setTimeout(() => ScrollTrigger.refresh(), 250); }).observe(document.body);
+    }
+}
+
+initCinematic().catch((error) => console.error('[museum] cinematic layer failed:', error));
+
+
 init();
