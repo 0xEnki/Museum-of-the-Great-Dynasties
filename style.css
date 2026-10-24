@@ -3964,3 +3964,420 @@ h2,
 .archive-table tr:nth-child(12) {
     animation-delay: 0.48s;
 }
+
+/* ==========================================================================
+   MOTION UPGRADE LAYER  (appended – no HTML / class / id changes required)
+   - transform / opacity / scale / rotate / translate only (compositor-friendly)
+   - spring easing via linear(); cubic-bezier fallback for older browsers
+   - JS gates: html.fx-aos is added only when the AOS library actually loaded
+   ========================================================================== */
+
+:root {
+    --fx-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
+    --fx-spring-soft: cubic-bezier(0.22, 1.2, 0.36, 1);
+    --fx-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --fx-gold: 212 175 55;
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+    :root {
+        --fx-spring: linear(0, 0.0335, 0.1201, 0.2404, 0.3781, 0.5197, 0.6554, 0.7779, 0.8828, 0.968, 1.0332, 1.0794, 1.1085, 1.1231, 1.1261, 1.1203, 1.1083, 1.0925, 1.0748, 1.057, 1.0402, 1.0251, 1.0124, 1.0021, 0.9944, 0.989, 0.9858, 0.9843, 1);
+        --fx-spring-soft: linear(0, 0.0181, 0.0653, 0.1325, 0.2121, 0.2982, 0.3862, 0.4726, 0.5547, 0.6308, 0.7, 0.7615, 0.8153, 0.8616, 0.9006, 0.9329, 0.9592, 0.98, 0.9962, 1.0083, 1.0169, 1.0228, 1.0263, 1.028, 1.0283, 1.0276, 1.0261, 1.0241, 1);
+    }
+}
+
+@property --rip-r { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --rip-o { syntax: '<number>'; inherits: false; initial-value: 0; }
+
+/* Reduced-motion safety: the legacy .reveal rule hid content for these users forever */
+.reveal.is-visible,
+.reveal.active {
+    opacity: 1;
+    transform: none;
+}
+
+/* ---------- 1. Staggered scroll reveals (JS-built cards, via existing IntersectionObserver) ---------- */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .reveal {
+        opacity: 0;
+        transform: translate3d(0, 48px, 0) scale(0.95);
+        transition: opacity 0.7s ease, transform 1s var(--fx-spring-soft);
+        transition-delay: calc(var(--i, 0) * 90ms);
+        will-change: opacity, transform;
+    }
+
+    .reveal.is-visible,
+    .reveal.active {
+        opacity: 1;
+        transform: none;
+        will-change: auto; /* release the GPU layer once settled */
+    }
+}
+
+/* AOS-driven blocks (exhibition rows, treasure cards, table, timeline) – same feel, spring easing.
+   Gated on html.fx-aos so nothing can get stuck if AOS fails to load (e.g. blocked by CSP). */
+@media (prefers-reduced-motion: no-preference) {
+    html.fx-aos [data-aos]:not(.aos-animate) { will-change: opacity, transform; }
+    html.fx-aos [data-aos="fade-up"]:not(.aos-animate) { transform: translate3d(0, 56px, 0) scale(0.95); }
+    html.fx-aos [data-aos="fade-right"]:not(.aos-animate) { transform: translate3d(-48px, 0, 0) scale(0.97); }
+
+    html.fx-aos [data-aos][data-aos][data-aos] {
+        transition-property: opacity, transform, translate, rotate, scale, border-color, box-shadow;
+        transition-duration: 0.8s, 1s, 0.5s, 0.7s, 0.7s, 0.3s, 0.4s;
+        transition-timing-function: ease, var(--fx-spring-soft), var(--fx-out), var(--fx-spring), var(--fx-spring), ease, ease;
+    }
+
+    /* Exhibition row: copy rises in after the image */
+    html.fx-aos .exhibition__row[data-aos] .exhibition__content > * {
+        opacity: 0;
+        translate: 0 26px;
+        transition: opacity 0.7s ease, translate 0.9s var(--fx-spring-soft);
+    }
+    html.fx-aos .exhibition__row.aos-animate .exhibition__content > * { opacity: 1; translate: 0 0; }
+    html.fx-aos .exhibition__row.aos-animate .exhibition__content > :nth-child(1) { transition-delay: 0.15s; }
+    html.fx-aos .exhibition__row.aos-animate .exhibition__content > :nth-child(2) { transition-delay: 0.27s; }
+    html.fx-aos .exhibition__row.aos-animate .exhibition__content > :nth-child(3) { transition-delay: 0.39s; }
+}
+
+/* ---------- 2. 3D tilt (pointer-fine devices only; JS sets `rotate`) ---------- */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    /* individual transform properties compose with – and never fight – AOS / hover `transform` */
+    .reveal,
+    #treasure-grid,
+    .exhibition__row { perspective: 1100px; }
+
+    .card,
+    .treasure-card,
+    .exhibition__image-link {
+        transition: border-color 0.3s, box-shadow 0.4s, transform 0.35s var(--ease, ease),
+            rotate 0.8s var(--fx-spring), scale 0.8s var(--fx-spring), translate 0.5s var(--fx-out);
+    }
+
+    /* rotate is intentionally NOT transitioned while tracking the pointer (JS smooths it per frame);
+       on leave this class drops and the base rule above springs it back to rest */
+    .fx-tilting {
+        scale: 1.03;
+        transition: border-color 0.3s, box-shadow 0.4s, scale 0.5s var(--fx-spring), translate 0.5s var(--fx-out) !important;
+        will-change: rotate, scale;
+        box-shadow: 0 28px 50px -22px rgb(0 0 0 / 0.85), 0 0 0 1px rgb(var(--fx-gold) / 0.28),
+            0 18px 40px -26px rgb(var(--fx-gold) / 0.55);
+    }
+
+    .treasure-card:hover { translate: 0 -6px; }
+}
+
+/* ---------- 3. Modals ---------- */
+/* 3a. Native <dialog> modals (exhibition + artifact): spring scale + blurred backdrop, enter AND exit */
+@supports (transition-behavior: allow-discrete) {
+    @media (prefers-reduced-motion: no-preference) {
+        .modal {
+            opacity: 0;
+            scale: 0.86;
+            translate: 0 40px;
+            transition: opacity 0.22s ease-in, scale 0.22s ease-in, translate 0.22s ease-in,
+                display 0.22s allow-discrete, overlay 0.22s allow-discrete;
+        }
+        .modal[open] {
+            opacity: 1;
+            scale: 1;
+            translate: 0 0;
+            animation: none;
+            transition: opacity 0.35s ease, scale 0.7s var(--fx-spring), translate 0.7s var(--fx-spring),
+                display 0.7s allow-discrete, overlay 0.7s allow-discrete;
+        }
+        .modal::backdrop {
+            background: rgb(5 5 7 / 0);
+            backdrop-filter: blur(0px);
+            transition: background-color 0.22s ease, backdrop-filter 0.22s ease,
+                display 0.22s allow-discrete, overlay 0.22s allow-discrete;
+        }
+        .modal[open]::backdrop {
+            background: rgb(5 5 7 / 0.74);
+            backdrop-filter: blur(12px) saturate(1.1);
+            animation: none;
+            transition: background-color 0.5s ease, backdrop-filter 0.6s ease,
+                display 0.6s allow-discrete, overlay 0.6s allow-discrete;
+        }
+        @starting-style {
+            .modal[open] { opacity: 0; scale: 0.86; translate: 0 40px; }
+            .modal[open]::backdrop { background: rgb(5 5 7 / 0); backdrop-filter: blur(0px); }
+        }
+    }
+}
+
+/* Fallback for browsers without discrete transitions: spring keyframes on open */
+@supports not (transition-behavior: allow-discrete) {
+    @media (prefers-reduced-motion: no-preference) {
+        .modal[open] { animation: fx-modal-spring 0.7s var(--fx-spring) both; }
+        .modal[open]::backdrop { animation: fade 0.4s ease; }
+    }
+}
+
+@keyframes fx-modal-spring {
+    from { opacity: 0; transform: translateY(40px) scale(0.86); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes fx-rise {
+    from { opacity: 0; transform: translate3d(0, 18px, 0); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes fx-img-settle {
+    from { opacity: 0; transform: scale(1.12); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    /* artifact image settles, details cascade in */
+    .modal[open] .modal__media img { animation: fx-img-settle 1.1s var(--fx-out) both; }
+    .modal[open] .modal__body > * { animation: fx-rise 0.65s var(--fx-out) both; }
+    .modal[open] .modal__body > :nth-child(1) { animation-delay: 0.12s; }
+    .modal[open] .modal__body > :nth-child(2) { animation-delay: 0.18s; }
+    .modal[open] .modal__body > :nth-child(3) { animation-delay: 0.24s; }
+    .modal[open] .modal__body > :nth-child(4) { animation-delay: 0.30s; }
+    .modal[open] .modal__body > :nth-child(5) { animation-delay: 0.36s; }
+    .modal[open] .modal__body > :nth-child(6) { animation-delay: 0.42s; }
+}
+
+/* 3b. Treasure modal (.active toggled by existing inline script): opacity/visibility instead of display swap */
+@media (prefers-reduced-motion: no-preference) {
+    .treasure-modal {
+        display: flex;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        background-color: rgb(0 0 0 / 0.5);
+        backdrop-filter: blur(0px);
+        transition: opacity 0.3s ease, background-color 0.4s ease, backdrop-filter 0.4s ease, visibility 0s linear 0.3s;
+    }
+    .treasure-modal.active {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+        background-color: rgb(0 0 0 / 0.82);
+        backdrop-filter: blur(12px);
+        transition-delay: 0s;
+    }
+    .treasure-modal-content {
+        opacity: 0;
+        scale: 0.84;
+        translate: 0 44px;
+        transition: opacity 0.25s ease, scale 0.25s ease-in, translate 0.25s ease-in;
+    }
+    .treasure-modal.active .treasure-modal-content {
+        opacity: 1;
+        scale: 1;
+        translate: 0 0;
+        transition: opacity 0.35s ease, scale 0.75s var(--fx-spring), translate 0.75s var(--fx-spring);
+    }
+    .treasure-modal.active .treasure-modal-img-box img { animation: fx-img-settle 1.1s var(--fx-out) both; }
+    .treasure-modal.active .treasure-modal-body > * { animation: fx-rise 0.65s var(--fx-out) both; }
+    .treasure-modal.active .treasure-modal-body > :nth-child(1) { animation-delay: 0.14s; }
+    .treasure-modal.active .treasure-modal-body > :nth-child(2) { animation-delay: 0.22s; }
+    .treasure-modal.active .treasure-modal-body > :nth-child(3) { animation-delay: 0.30s; }
+
+    /* 3c. Archive modal (#archiveModal – display toggled inline; JS wrapper adds .fx-closing for the exit) */
+    html #archiveModal[data-aos] { opacity: 1; transform: none; transition: none; }
+    #archiveModal { animation: fx-backdrop-in 0.45s ease both; }
+    #archiveModal > div { animation: fx-modal-spring 0.75s var(--fx-spring) both; }
+    #archiveModal.fx-closing { animation: fx-backdrop-out 0.26s ease forwards; pointer-events: none; }
+    #archiveModal.fx-closing > div { animation: fx-modal-out 0.26s ease-in forwards; }
+}
+
+@keyframes fx-backdrop-in {
+    from { opacity: 0; backdrop-filter: blur(0px); }
+    to { opacity: 1; backdrop-filter: blur(8px); }
+}
+@keyframes fx-backdrop-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+@keyframes fx-modal-out {
+    to { opacity: 0; transform: translateY(30px) scale(0.9); }
+}
+
+/* ---------- 4. Hero & gallery parallax (JS writes --hero-y / --hero-cy / --py once per frame) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+    .hero__bg {
+        scale: 1.14;
+        translate: 0 var(--hero-y, 0px);
+        will-change: translate;
+    }
+    .hero .hero__content {
+        translate: 0 var(--hero-cy, 0px);
+        opacity: var(--hero-o, 1);
+    }
+    .exhibition__image-link img {
+        scale: 1.14;
+        translate: 0 var(--py, 0px);
+        will-change: translate;
+    }
+    .exhibition__image-link:hover img { scale: 1.2; transition: scale 0.9s var(--fx-out); }
+}
+
+/* ---------- 5. Table rows: soft pointer-following highlight (static <table> and JS grid rows) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+    .archive-table tbody tr,
+    .table-row {
+        transition: background-color 0.35s ease, box-shadow 0.35s ease;
+    }
+    .archive-table tbody tr:hover,
+    .table-row:hover {
+        /* !important beats the inline onmouseover background shorthand, which only resets background-image */
+        background-image: radial-gradient(420px circle at var(--mx, 50%) 50%, rgb(var(--fx-gold) / 0.14), transparent 70%) !important;
+        box-shadow: inset 3px 0 0 rgb(var(--fx-gold) / 0.7);
+    }
+    .archive-table tbody tr img,
+    .table-thumb {
+        transition: scale 0.5s var(--fx-spring), border-color 0.3s;
+    }
+    .archive-table tbody tr:hover img,
+    .table-row:hover .table-thumb { scale: 1.12; }
+}
+
+/* ---------- 6. Tactile buttons: spring press + pointer ripple (ripple painted via background-image, no DOM) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+    .btn, .btn-detail, .action-btn, .exhibition__btn, .t-filter-btn,
+    .nav--prev, .nav--next, .modal__close, .treasure-close-btn {
+        transition-property: transform, scale, background-color, color, border-color, box-shadow;
+        transition-duration: 0.25s, 0.5s, 0.25s, 0.25s, 0.25s, 0.25s;
+        transition-timing-function: ease, var(--fx-spring), ease, ease, ease, ease;
+    }
+    .btn:active, .btn-detail:active, .action-btn:active, .exhibition__btn:active,
+    .t-filter-btn:active, .nav--prev:active, .nav--next:active,
+    .modal__close:active, .treasure-close-btn:active {
+        scale: 0.94;
+        transition-duration: 0.08s;
+    }
+    .fx-rip {
+        background-image: radial-gradient(circle at var(--rx, 50%) var(--ry, 50%),
+            rgb(255 255 255 / var(--rip-o)) var(--rip-r), transparent calc(var(--rip-r) + 1px)) !important;
+    }
+}
+
+
+/* ==========================================================================
+   CINEMATIC LAYER  (hero choreography, cursor lighting, magnetism, inertia scroll)
+   Pointer-driven values are written as CSS variables onto small subtrees only
+   (.hero / the hovered card) and consumed by `translate` / `opacity`, so every
+   frame stays on the compositor.
+   ========================================================================== */
+
+/* ---------- Lenis (its stylesheet cannot load under the site CSP, so it lives here) ---------- */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-scrolling iframe { pointer-events: none; }
+
+/* ---------- Hero: choreography start state ----------
+   Text is hidden ONLY while the page is waiting for GSAP. A 3.4s CSS failsafe reveals it
+   regardless, and html.fx-hero-fallback (set by JS if the CDN is unreachable) replays the
+   original CSS entrance instead. */
+@keyframes fx-hero-failsafe { to { opacity: 1; } }
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    html:not(.fx-hero-fallback) .hero__title {
+        opacity: 0;
+        animation: shineText 5s linear infinite, fx-hero-failsafe 0.01s 3.4s forwards;
+    }
+    html:not(.fx-hero-fallback) .hero__lead,
+    html:not(.fx-hero-fallback) .hero__actions {
+        opacity: 0;
+        animation: fx-hero-failsafe 0.01s 3.4s forwards;
+    }
+    html.fx-hero-fallback .hero__title { animation: shineText 5s linear infinite, fade 1.2s ease both; }
+
+    /* Depth of field: the film "pulls focus" on the video; fill-mode `backwards` leaves no filter layer behind */
+    .hero__bg { animation: fx-focus-pull 2.6s var(--fx-out) backwards; }
+
+    /* Cinematic vignette + warm rim light (static gradient = painted once) */
+    .hero__overlay {
+        background:
+            radial-gradient(120% 95% at 68% 45%, rgb(0 0 0 / 0.28), rgb(0 0 0 / 0.8) 100%),
+            linear-gradient(to bottom, rgb(0 0 0 / 0.4), transparent 28%, rgb(0 0 0 / 0.7) 100%);
+        box-shadow: inset 0 -140px 180px -100px rgb(var(--fx-gold) / 0.16);
+        animation: fade 2s ease 0.1s backwards;
+    }
+
+    /* Ambient light that follows the cursor: a static gradient, moved with `translate` only */
+    .hero::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 900px;
+        height: 900px;
+        margin: -450px 0 0 -450px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgb(var(--fx-gold) / 0.22) 0%, rgb(var(--fx-gold) / 0.07) 38%, transparent 66%);
+        translate: var(--hgx, 68vw) var(--hgy, 42vh);
+        pointer-events: none;
+        z-index: -1;
+        will-change: translate;
+    }
+
+    /* Mouse-parallax depth: video drifts opposite the cursor, copy drifts with it
+       (composes with the scroll parallax from the previous layer) */
+    .hero__bg {
+        translate: calc(var(--hmx, 0) * -18px) calc(var(--hero-y, 0px) + var(--hmy, 0) * -12px);
+    }
+    .hero .hero__content {
+        translate: calc(var(--hmx, 0) * 12px) calc(var(--hero-cy, 0px) + var(--hmy, 0) * 8px);
+    }
+}
+
+@keyframes fx-focus-pull {
+    from { filter: blur(22px) brightness(0.5) saturate(1.4); }
+    to { filter: blur(0) brightness(1) saturate(1); }
+}
+
+/* ---------- Magnetic buttons (JS writes --mgx / --mgy while the pointer is over them) ---------- */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .btn, .exhibition__btn, .btn-detail, .action-btn, .t-filter-btn, .nav--prev, .nav--next {
+        translate: var(--mgx, 0px) var(--mgy, 0px);
+        transition-property: transform, scale, translate, background-color, color, border-color, box-shadow;
+        transition-duration: 0.25s, 0.5s, 0.8s, 0.25s, 0.25s, 0.25s, 0.25s;
+        transition-timing-function: ease, var(--fx-spring), var(--fx-spring), ease, ease, ease, ease;
+    }
+    .btn:hover, .exhibition__btn:hover, .btn-detail:hover, .action-btn:hover,
+    .t-filter-btn:hover, .nav--prev:hover, .nav--next:hover {
+        transition-duration: 0.25s, 0.5s, 0.25s, 0.25s, 0.25s, 0.25s, 0.25s;
+        transition-timing-function: ease, var(--fx-spring), var(--fx-out), ease, ease, ease, ease;
+    }
+    /* the existing rule forces its own transition list with !important – extend it, keep the intent */
+    .btn-detail {
+        transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease,
+            translate 0.8s var(--fx-spring), scale 0.5s var(--fx-spring) !important;
+    }
+    .btn-detail:hover {
+        transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease,
+            translate 0.25s var(--fx-out), scale 0.5s var(--fx-spring) !important;
+    }
+
+    /* ---------- Cards gravitate toward the cursor + a travelling specular glare ---------- */
+    .card, .treasure-card, .exhibition__image-link { position: relative; }
+    .card, .exhibition__image-link { translate: var(--mgx, 0px) var(--mgy, 0px); }
+    .treasure-card:hover { translate: var(--mgx, 0px) calc(-6px + var(--mgy, 0px)); }
+
+    .card::after,
+    .treasure-card::after,
+    .exhibition__image-link::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 340px;
+        height: 340px;
+        margin: -170px 0 0 -170px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgb(255 238 180 / 0.26), rgb(var(--fx-gold) / 0.08) 45%, transparent 68%);
+        translate: var(--gx, 50%) var(--gy, 50%);
+        opacity: 0;
+        transition: opacity 0.45s ease;
+        pointer-events: none;
+        z-index: 3;
+    }
+    .fx-tilting::after { opacity: 1; }
+}
