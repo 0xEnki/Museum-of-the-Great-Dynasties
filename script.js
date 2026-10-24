@@ -1904,7 +1904,6 @@ async function initCinematic() {
         });
     }
 
-    // JSON-built sections change the page height after load – keep trigger positions honest
     if ('ResizeObserver' in window) {
         let t = 0;
         new ResizeObserver(() => { clearTimeout(t); t = setTimeout(() => ScrollTrigger.refresh(), 250); }).observe(document.body);
